@@ -28,9 +28,9 @@ Requisitos Funcionales
 2. Mostrar el estado académico del estudiante (aprobado, reprobado, en riesgo).
 
 7. Generación de Reportes
-7.1. Generar reportes individuales de rendimiento académico por estudiante.
-7.2. Generar reportes generales por curso, asignatura y período académico.
-7.3. Exportar reportes en formatos como PDF y Excel.
+1. Generar reportes individuales de rendimiento académico por estudiante.
+2. Generar reportes generales por curso, asignatura y período académico.
+3. Exportar reportes en formatos como PDF y Excel.
 
 8. Notificaciones y Alertas
 1. Enviar notificaciones a los estudiantes cuando se actualicen sus calificaciones.
