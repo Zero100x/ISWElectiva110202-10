@@ -9,4 +9,21 @@ El sistema debe requerir autenticación y autorización para que solo profesores
 Los datos de calificaciones y cuentas de los usuarios deben almacenarse encriptados.
 El sistema debe protegerse contra ataques comunes como inyección SQL.
 Escalabilidad.
-
+El sistema debe ser capaz de manejar hasta 300 usuarios simultáneos sin degradación del rendimiento.
+La arquitectura del sistema debe permitir agregar nuevas funcionalidades o módulos sin alterar significativamente el diseño existente.
+Rendimiento.
+Las consultas de notas por parte de los estudiantes no deben exceder los 2 segundos en promedio, incluso durante picos de tráfico.
+Los informes generados por los administradores deben completarse en menos de 5 segundos para conjuntos de datos de hasta 1 millón de registros.
+Disponibilidad.
+El sistema debe garantizar una disponibilidad del 99.9% al año, con un tiempo de inactividad planificado de no más de 3 horas al mes para mantenimiento.
+Soporte para recuperación en caso de fallos, con un tiempo máximo de recuperación de 1 hora.
+Usabilidad.
+La interfaz debe ser intuitiva y fácil de usar tanto para profesores como para estudiantes y administradores.
+El sistema debe ser compatible con dispositivos móviles y navegadores web modernos.
+Compatibilidad.
+El sistema debe ser multiplataforma, compatible con navegadores como Chrome, Firefox, Edge y Safari.
+Compatible con dispositivos móviles, tabletas y ordenadores de escritorio.
+La API debe seguir los estándares REST para facilitar las integraciones con otros sistemas.
+Mantenimiento.
+El código fuente del sistema debe estar documentado para facilitar futuras modificaciones.
+El sistema debe estar estructurado en módulos independientes para que los cambios en una funcionalidad no afecten a los demás.
