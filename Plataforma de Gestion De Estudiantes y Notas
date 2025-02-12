@@ -27,3 +27,5 @@ La API debe seguir los estándares REST para facilitar las integraciones con otr
 Mantenimiento.
 El código fuente del sistema debe estar documentado para facilitar futuras modificaciones.
 El sistema debe estar estructurado en módulos independientes para que los cambios en una funcionalidad no afecten a los demás.
+Portabilidad.
+El sistema debe ser capaz de migrar a diferentes proveedores de nube como AWS, Azure o Google Cloud sin modificaciones significativas.
