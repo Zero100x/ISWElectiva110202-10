@@ -1,0 +1,8 @@
+# ISWElectiva110202-10
+Requisitos Funcionales
+
+Requisitos No Funcionales
+El sistema debe requerir autenticación y autorización para que solo profesores, estudiantes y administradores accedan a las funciones correspondientes.
+Los datos de calificaciones y cuentas de los usuarios deben almacenarse encriptados.
+El sistema debe protegerse contra ataques comunes como inyección SQL.
+.
