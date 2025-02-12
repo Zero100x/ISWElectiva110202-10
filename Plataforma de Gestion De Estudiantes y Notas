@@ -1,6 +1,8 @@
 # ISWElectiva110202-10
 Requisitos Funcionales
-
+1. Gestión de Usuarios
+1.1. Permitir el registro de nuevos usuarios con validación de identidad.
+1.2. Autenticación mediante credenciales (usuario/contraseña) y/o integración con cuentas institucionales.
 Requisitos No Funcionales
 Seguridad.
 El sistema debe requerir autenticación y autorización para que solo profesores, estudiantes y administradores accedan a las funciones correspondientes.
