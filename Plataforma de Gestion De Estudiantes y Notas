@@ -1,50 +1,51 @@
 # ISWElectiva110202-10
 Requisitos Funcionales
-1. Gestión de Usuarios
+* Gestión de Usuarios
 1. Permitir el registro y autenticación de usuarios (profesores, estudiantes y administradores).
 2. Asignar roles y permisos según el tipo de usuario.
 3. Permitir la recuperación de contraseña mediante correo electrónico.
 
-2. Gestión de Estudiantes
+* Gestión de Estudiantes
 1. Registrar y actualizar la información de los estudiantes (nombre, identificación, curso, etc.).
 2. Asociar estudiantes con cursos y asignaturas.
 
-3. Gestión de Profesores
+* Gestión de Profesores
 1. Registrar y actualizar la información de los profesores.
 2. Asignar profesores a cursos y asignaturas.
 
-4. Gestión de Asignaturas y Cursos
+* Gestión de Asignaturas y Cursos
 1. Crear y administrar asignaturas.
 2. Asignar estudiantes y profesores a asignaturas específicas.
 3. Definir criterios de evaluación (parciales, exámenes, trabajos, etc.).
 
-5. Registro y Gestión de Notas
+* Registro y Gestión de Notas
 1. Permitir a los profesores ingresar calificaciones para cada estudiante en sus asignaturas.
 2. Editar o eliminar calificaciones registradas.
 3. Calcular automáticamente promedios de notas por asignatura y período académico.
 
-6. Consulta de Notas por los Estudiantes
+* Consulta de Notas por los Estudiantes
 1. Permitir que los estudiantes consulten sus calificaciones por materia y período.
 2. Mostrar el estado académico del estudiante (aprobado, reprobado, en riesgo).
 
-7. Generación de Reportes
+* Generación de Reportes
 1. Generar reportes individuales de rendimiento académico por estudiante.
 2. Generar reportes generales por curso, asignatura y período académico.
 3. Exportar reportes en formatos como PDF y Excel.
 
-8. Notificaciones y Alertas
+* Notificaciones y Alertas
 1. Enviar notificaciones a los estudiantes cuando se actualicen sus calificaciones.
 2. Alertar a los profesores sobre plazos para registrar notas.
 3. Notificar a los administradores sobre estudiantes en riesgo académico.
 
-9. Seguridad y Control de Acceso
+* Seguridad y Control de Acceso
 1. Asegurar que solo los profesores puedan modificar notas de sus estudiantes.
 2. Garantizar que los estudiantes solo puedan visualizar sus propias calificaciones.
 3. Implementar autenticación multifactor (MFA) para administradores.
 
-10. Integración con Otros Sistemas
+* Integración con Otros Sistemas
 1. Posibilidad de integración con plataformas de gestión educativa (LMS, ERP).
 2. Soporte para importar/exportar datos desde otros sistemas mediante APIs.
+
 Requisitos No Funcionales
 Seguridad.
 El sistema debe requerir autenticación y autorización para que solo profesores, estudiantes y administradores accedan a las funciones correspondientes.
