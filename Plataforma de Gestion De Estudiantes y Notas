@@ -1,6 +1,6 @@
 # ISWElectiva110202-10
 Requisitos Funcionales
-* Gestión de Usuarios
+## Gestión de Usuarios
 1. Permitir el registro y autenticación de usuarios (profesores, estudiantes y administradores).
 2. Asignar roles y permisos según el tipo de usuario.
 3. Permitir la recuperación de contraseña mediante correo electrónico.
