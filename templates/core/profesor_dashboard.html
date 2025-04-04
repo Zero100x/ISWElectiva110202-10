@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dashboard de Profesor{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .dashboard-header {
+        background-color: #ff0000;
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .dashboard-title {
+        font-size: 24px;
+        margin: 0;
+    }
+    
+    .user-info {
+        display: flex;
+        align-items: center;
+    }
+    
+    .user-name {
+        margin-right: 15px;
+    }
+    
+    .logout-btn {
+        background-color: white;
+        color: #ff0000;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        text-decoration: none;
+    }
+    
+    .dashboard-content {
+        background-color: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .dashboard-section {
+        margin-bottom: 30px;
+    }
+    
+    .section-title {
+        font-size: 18px;
+        margin-bottom: 15px;
+        color: #333;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+    
+    .card-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .card {
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        padding: 15px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    
+    .card-title {
+        font-size: 16px;
+        margin-bottom: 10px;
+        color: #ff0000;
+    }
+    
+    .card-content {
+        font-size: 14px;
+        color: #666;
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">Dashboard de Profesor</h1>
+        <div class="user-info">
+            <span class="user-name">Bienvenido, {{ request.user.get_full_name|default:request.user.username }}</span>
+            <a href="{% url 'logout' %}" class="logout-btn">Cerrar sesión</a>
+        </div>
+    </div>
+    
+    <div class="dashboard-content">
+        <div class="dashboard-section">
+            <h2 class="section-title">Mis Cursos</h2>
+            <div class="card-container">
+                <!-- Ejemplo de cursos, reemplazar con datos reales -->
+                <div class="card">
+                    <h3 class="card-title">Matemáticas 101</h3>
+                    <div class="card-content">
+                        <p>Estudiantes: 25</p>
+                        <p>Próxima clase: Lunes 10:00 AM</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">Física Avanzada</h3>
+                    <div class="card-content">
+                        <p>Estudiantes: 18</p>
+                        <p>Próxima clase: Martes 2:00 PM</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">Programación</h3>
+                    <div class="card-content">
+                        <p>Estudiantes: 30</p>
+                        <p>Próxima clase: Miércoles 8:00 AM</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dashboard-section">
+            <h2 class="section-title">Tareas Pendientes</h2>
+            <div class="card-container">
+                <!-- Ejemplo de tareas, reemplazar con datos reales -->
+                <div class="card">
+                    <h3 class="card-title">Calificar exámenes</h3>
+                    <div class="card-content">
+                        <p>Curso: Matemáticas 101</p>
+                        <p>Fecha límite: 15/04/2025</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">Preparar material</h3>
+                    <div class="card-content">
+                        <p>Curso: Física Avanzada</p>
+                        <p>Fecha límite: 10/04/2025</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
