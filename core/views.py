@@ -116,13 +116,37 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
         return super().form_valid(form)
 
 
+# Mixin para evitar que los usuarios retroceden desde los dashboards
+class PreventBackNavigationMixin:
+    """
+    Mixin que agrega headers para prevenir navegación hacia atrás
+    y redirigir al login si el usuario intenta retroceder.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        
+        # Agregar encabezados para prevenir cacheo
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
+        
+        return response
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Agregar una variable para activar el script de prevención de retroceso
+        context['prevent_back'] = True
+        return context
+
+
 # ======== VISTAS DE DASHBOARD ========
 @method_decorator(role_required(['student']), name='dispatch')
-class StudentDashboardView(TemplateView):
+class StudentDashboardView(PreventBackNavigationMixin, TemplateView):
     """
     Dashboard para estudiantes.
     
     Solo accesible para usuarios con rol de estudiante.
+    Incluye prevención de navegación hacia atrás.
     """
     template_name = 'core/dashboard_student.html'
     
@@ -130,15 +154,17 @@ class StudentDashboardView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
         context['section'] = 'dashboard'
+        context['login_url'] = reverse_lazy('login')  # URL para redirigir si se retrocede
         return context
 
 
 @method_decorator(role_required(['teacher']), name='dispatch')
-class TeacherDashboardView(TemplateView):
+class TeacherDashboardView(PreventBackNavigationMixin, TemplateView):
     """
     Dashboard para profesores.
     
     Solo accesible para usuarios con rol de profesor.
+    Incluye prevención de navegación hacia atrás.
     """
     template_name = 'core/dashboard_teacher.html'
     
@@ -146,15 +172,17 @@ class TeacherDashboardView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
         context['section'] = 'dashboard'
+        context['login_url'] = reverse_lazy('login')  # URL para redirigir si se retrocede
         return context
 
 
 @method_decorator(role_required(['admin']), name='dispatch')
-class AdminDashboardView(TemplateView):
+class AdminDashboardView(PreventBackNavigationMixin, TemplateView):
     """
     Dashboard para administradores.
     
     Solo accesible para usuarios con rol de administrador.
+    Incluye prevención de navegación hacia atrás.
     """
     template_name = 'core/dashboard_admin.html'
     
@@ -162,6 +190,7 @@ class AdminDashboardView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['user'] = self.request.user
         context['section'] = 'dashboard'
+        context['login_url'] = reverse_lazy('login')  # URL para redirigir si se retrocede
         return context
 
 
@@ -179,11 +208,24 @@ def custom_logout(request):
 @method_decorator(login_required, name='dispatch')
 class HomeView(TemplateView):
     """
-    Página principal de la aplicación.
-    
-    Solo accesible para usuarios autenticados.
+    Página principal de la aplicación que redirige al usuario a su dashboard 
+    según su rol.
     """
     template_name = 'core/home.html'
+    
+    def dispatch(self, request, *args, **kwargs):
+        # Redirigir al usuario según su rol
+        user = request.user
+        
+        if user.is_superuser or user.role == User.ADMIN:
+            return redirect('admin_dashboard')
+        elif user.role == User.TEACHER:
+            return redirect('teacher_dashboard')
+        elif user.role == User.STUDENT:
+            return redirect('student_dashboard')
+        else:
+            # Si no tiene un rol específico, mostrar la página de inicio
+            return super().dispatch(request, *args, **kwargs)
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

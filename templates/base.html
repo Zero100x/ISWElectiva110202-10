@@ -22,16 +22,16 @@
     </style>
     
     <!-- Bloque para estilos adicionales en páginas específicas -->
-    {% block extra_head %}{% endblock %}
+    {% block extra_head %}{% endblock extra_head %}
 </head>
 <body>
-    {% block content %}{% endblock %}
+    {% block content %}{% endblock content %}
     
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Bloque para scripts adicionales en páginas específicas -->
-    {% block extra_scripts %}{% endblock %}
+    {% block extra_scripts %}{% endblock extra_scripts %}
 </body>
 </html></qodoArtifact>
 

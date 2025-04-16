@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<style>
+    /* Estilos específicos del dashboard aquí */
+</style>
+{% endblock %}
+
+{% block content %}
+    <!-- Contenido del dashboard aquí -->
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>Dashboard - {{ user.get_role_display }}</h1>
+            <a href="{% url 'logout' %}" class="btn btn-dark">Cerrar sesión</a>
+        </div>
+        
+        <div class="dashboard-content">
+            {% block dashboard_content %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+{% if prevent_back %}
+<script>
+    // Prevenir navegación hacia atrás
+    window.onload = function() {
+        // Desactivar el botón de retroceso
+        history.pushState(null, null, document.URL);
+        window.addEventListener('popstate', function() {
+            history.pushState(null, null, document.URL);
+            // Redirigir al login si el usuario intenta retroceder
+            window.location.href = "{% url 'login' %}";
+        });
+    }
+</script>
+{% endif %}
+{% endblock %}
