@@ -1,0 +1,45 @@
+<h2>Mis calificaciones</h2>
+<form method="get">
+    <select name="asignatura">
+        <option value="">Todas las asignaturas</option>
+        {% for a in asignaturas %}
+            <option value="{{ a.id }}">{{ a.nombre }}</option>
+        {% endfor %}
+    </select>
+    <select name="periodo">
+        <option value="">Todos los periodos</option>
+        {% for p in periodos %}
+            <option value="{{ p.id }}">{{ p.nombre }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Filtrar</button>
+</form>
+
+<!-- Botones de navegación -->
+<div style="margin-top: 20px;">
+    <button onclick="window.history.back();">Retroceder</button>
+    <a href="{% url 'logout' %}">
+        <button type="button">Cerrar sesión</button>
+    </a>
+</div>
+
+{% if mensaje %}
+    <p>{{ mensaje }}</p>
+{% else %}
+    <table>
+        <tr>
+            <th>Asignatura</th>
+            <th>Periodo</th>
+            <th>Tipo de Evaluación</th>
+            <th>Nota</th>
+        </tr>
+        {% for c in calificaciones %}
+        <tr>
+            <td>{{ c.asignatura }}</td>
+            <td>{{ c.periodo }}</td>
+            <td>{{ c.tipo_evaluacion }}</td>
+            <td>{{ c.nota }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endif %}

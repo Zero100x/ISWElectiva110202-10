@@ -1,0 +1,153 @@
+{% extends 'base_generic.html' %}
+
+{% block title %}Lista de Calificaciones{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="d-flex justify-content-end mb-4">
+        <div class="d-flex align-items-center">
+            <span class="badge bg-info me-3">
+                <i class="fas fa-user-tag"></i> Rol: {{ request.user.rol|default:"No definido"|title }}
+            </span>
+            <a href="{% url 'logout' %}" class="btn btn-danger">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </a>
+        </div>
+    </div>
+
+    {% if calificaciones %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Estudiante</th>
+                    <th>Asignatura</th>
+                    <th>Período</th>
+                    <th>Calificación</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for calificacion in calificaciones %}
+                <tr>
+                    <td>{{ calificacion.estudiante.user.get_full_name }}</td>
+                    <td>{{ calificacion.asignatura.nombre }}</td>
+                    <td>{{ calificacion.periodo }}</td>
+                    <td>
+                        <span id="nota-{{ calificacion.id }}">{{ calificacion.nota }}</span>
+                        <input type="number" 
+                               id="edit-nota-{{ calificacion.id }}" 
+                               class="form-control d-none" 
+                               value="{{ calificacion.nota }}" 
+                               min="0" 
+                               max="5" 
+                               step="0.1">
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-primary edit-btn" data-id="{{ calificacion.id }}">
+                            <i class="fas fa-pencil-alt"></i>
+                        </button>
+                        <button class="btn btn-sm btn-success save-btn d-none" data-id="{{ calificacion.id }}">
+                            <i class="fas fa-save"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger cancel-btn d-none" data-id="{{ calificacion.id }}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">No hay calificaciones registradas.</div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extrahead %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            const row = this.closest('tr');
+            row.querySelector(`#nota-${id}`).classList.add('d-none');
+            row.querySelector(`#edit-nota-${id}`).classList.remove('d-none');
+            this.classList.add('d-none');
+            row.querySelector('.save-btn').classList.remove('d-none');
+            row.querySelector('.cancel-btn').classList.remove('d-none');
+        });
+    });
+
+    document.querySelectorAll('.save-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const id = this.dataset.id;
+            const row = this.closest('tr');
+            const newValue = row.querySelector(`#edit-nota-${id}`).value;
+
+            try {
+                const response = await fetch(`/academico/calificacion/editar/${id}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ nota: newValue })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    row.querySelector(`#nota-${id}`).textContent = newValue;
+                    resetEditState(row, id);
+                } else {
+                    alert(data.error || 'Error al guardar la calificación');
+                }
+            } catch (error) {
+                alert('Error al guardar los cambios');
+            }
+        });
+    });
+
+    document.querySelectorAll('.cancel-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            const row = this.closest('tr');
+            row.querySelector(`#edit-nota-${id}`).value = row.querySelector(`#nota-${id}`).textContent;
+            resetEditState(row, id);
+        });
+    });
+
+    function resetEditState(row, id) {
+        row.querySelector(`#nota-${id}`).classList.remove('d-none');
+        row.querySelector(`#edit-nota-${id}`).classList.add('d-none');
+        row.querySelector('.edit-btn').classList.remove('d-none');
+        row.querySelector('.save-btn').classList.add('d-none');
+        row.querySelector('.cancel-btn').classList.add('d-none');
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+</script>
+{% endblock %}

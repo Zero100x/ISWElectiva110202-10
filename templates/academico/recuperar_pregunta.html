@@ -1,0 +1,49 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center mb-0">Recuperación de Contraseña</h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-section mb-4">
+                        <div class="mb-3">
+                            <label class="fw-bold">Usuario:</label>
+                            <span class="ms-2">{{ username }}</span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold">Pregunta de seguridad:</label>
+                            <p class="mb-0 ms-2">{{ pregunta }}</p>
+                        </div>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_respuesta_seguridad" class="form-label">Tu respuesta:</label>
+                            {{ form.respuesta_seguridad }}
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Verificar respuesta</button>
+                            <a href="{% url 'login' %}" class="btn btn-outline-secondary">Volver al inicio de sesión</a>
+                        </div>
+                    </form>
+
+                    {% if messages %}
+                        <div class="mt-3">
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
