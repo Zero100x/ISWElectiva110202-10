@@ -30,15 +30,11 @@ class RecuperacionPreguntaForm(forms.Form):
 
 class PasswordValidationMixin:
     def validate_password(self, password1, password2):
-        if password1 != password2:
+        if password1 and password2 and password1 != password2:
             raise forms.ValidationError("Las contraseñas no coinciden.")
-        if len(password1) < 6:
+        if password1 and len(password1) < 6:
             raise forms.ValidationError("La contraseña debe tener al menos 6 caracteres.")
-        # Agregar validación de complejidad
-        if not any(c.isupper() for c in password1):
-            raise forms.ValidationError("La contraseña debe contener al menos una letra mayúscula.")
-        if not any(c.isdigit() for c in password1):
-            raise forms.ValidationError("La contraseña debe contener al menos un número.")
+
 class RecuperacionPasswordForm(forms.Form, PasswordValidationMixin):
     """
     Tercer paso: Formulario para establecer la nueva contraseña
@@ -115,4 +111,11 @@ class ResetPasswordForm(forms.Form):
             raise forms.ValidationError("Las contraseñas no coinciden.")
         if new_password and len(new_password) < 6:
             raise forms.ValidationError("La contraseña debe tener al menos 6 caracteres.")
+        def save(self, commit=True):
+            user = super().save(commit=False)
+            if commit:
+                user.save()
+                if user.rol == 'profesor':
+                    Profesor.objects.create(user=user)
+            return user
         return cleaned_data

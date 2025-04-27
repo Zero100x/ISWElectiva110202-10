@@ -3,7 +3,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'default-secret-key-for-development')  # 🔒 Reemplaza esto por una clave secreta segura
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'default-secret-key-for-development')
 
 DEBUG = True  # ⚠️ No olvides ponerlo en False en producción
 
@@ -25,7 +25,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',  # Asegúrate de que esta línea esté presente
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -53,10 +53,66 @@ TEMPLATES = [
 WSGI_APPLICATION = 'sistema_notas.wsgi.application'
 
 # Base de datos
+# Configuración de caché
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
+# Optimización de base de datos
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        'ATOMIC_REQUESTS': True,
+        'CONN_MAX_AGE': 60,
+        'OPTIONS': {
+            'timeout': 20
+        }
+    }
+}
+
+# Configuración de caché para optimizar consultas
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+        'TIMEOUT': 300,  # 5 minutos
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000
+        }
+    }
+}
+
+# Configuración de logging mejorada
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        }
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': 'django-debug.log',
+            'formatter': 'verbose'
+        }
+    },
+    'loggers': {
+        'django.db.backends': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG' if DEBUG else 'INFO',
+            'propagate': False,
+        }
     }
 }
 
@@ -106,3 +162,8 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 # ✅ Clave para evitar los warnings por claves primarias automáticas
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Agregar headers de seguridad
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'

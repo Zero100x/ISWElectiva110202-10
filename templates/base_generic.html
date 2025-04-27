@@ -1,41 +1,118 @@
 <!DOCTYPE html>
-<html lang="es">
+<!-- Define el tipo de documento y idioma -->
+<html lang="es" class="h-full">
 <head>
+    <!-- Metadatos básicos -->
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Título dinámico que puede ser sobrescrito en templates hijos -->
     <title>{% block title %}Sistema de notas{% endblock %}</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    
+    <!-- Importación de Tailwind CSS desde CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Importación de animate.css para animaciones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <!-- Configuración personalizada de Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    // Extensión de la paleta de colores
+                    colors: {
+                        academic: {
+                            primary: '#dc2626',  // Rojo académico
+                            secondary: '#171717', // Negro
+                            accent: '#525252',    // Gris
+                            light: '#f5f5f5'      // Blanco
+                        }
+                    },
+                    // Definición de animaciones personalizadas
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'gradient-x': 'gradient-x 8s ease infinite',
+                    },
+                    // Keyframes para animaciones
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        'gradient-x': {
+                            '0%, 100%': { 'background-position': '0% 50%' },
+                            '50%': { 'background-position': '100% 50%' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Bloque para añadir elementos extra al head desde templates hijos -->
+    {% block extra_head %}{% endblock %}
 </head>
-<body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light px-4">
-        <a class="navbar-brand" href="#">Sistema de Notas</a>
-        <div class="ms-auto d-flex align-items-center">
-            {% if user.is_authenticated %}
-                <span class="me-3">
-                    Rol: 
-                    {% if user.is_superuser %}
-                        Administrador
-                    {% elif user.rol == 'profesor' %}
-                        Profesor
-                    {% elif user.rol == 'estudiante' %}
-                        Estudiante
+
+<!-- Cuerpo del documento con clases de Tailwind para estilos base -->
+<body class="h-full bg-academic-light font-sans antialiased">
+    <!-- Barra de navegación -->
+    <nav class="bg-academic-secondary shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo/Marca del sistema -->
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <span class="text-white font-bold text-xl">📊 Sistema de Notas</span>
+                    </div>
+                </div>
+                
+                <!-- Controles de usuario -->
+                <div class="flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                        <!-- Muestra el rol del usuario -->
+                        <span class="text-accent-200 text-sm font-medium">
+                            Rol: 
+                            <span class="text-academic-primary">
+                                {% if user.is_superuser %}
+                                    Administrador
+                                {% elif user.rol == 'profesor' %}
+                                    Profesor
+                                {% elif user.rol == 'estudiante' %}
+                                    Estudiante
+                                {% else %}
+                                    Usuario
+                                {% endif %}
+                            </span>
+                        </span>
+                        <!-- Botón de cierre de sesión -->
+                        <a href="{% url 'logout' %}" class="px-3 py-1 rounded-md text-sm font-medium text-white bg-academic-primary hover:bg-red-700 transition duration-300 ease-in-out transform hover:scale-105">
+                            Cerrar sesión
+                        </a>
                     {% else %}
-                        Usuario
+                        <!-- Botón de inicio de sesión -->
+                        <a href="{% url 'login' %}" class="px-3 py-1 rounded-md text-sm font-medium text-white bg-academic-primary hover:bg-red-700 transition duration-300 ease-in-out transform hover:scale-105">
+                            Iniciar sesión
+                        </a>
                     {% endif %}
-                </span>
-                <a class="btn btn-outline-danger btn-sm" href="{% url 'logout' %}">Cerrar sesión</a>
-            {% else %}
-                <a class="btn btn-outline-primary btn-sm" href="{% url 'login' %}">Iniciar sesión</a>
-            {% endif %}
+                </div>
+            </div>
         </div>
     </nav>
 
-    <!-- Contenido -->
-    <div class="container mt-4">
-        {% block content %}
-        {% endblock %}
-    </div>
+    <!-- Contenido principal -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Pie de página -->
+    <footer class="bg-academic-secondary text-white py-4 mt-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm">
+            <p>© {% now "Y" %} Sistema de Notas Académicas - Ingeniería de Software</p>
+        </div>
+    </footer>
+
+    <!-- Bloque para añadir scripts JavaScript desde templates hijos -->
+    {% block extra_js %}{% endblock %}
 </body>
 </html>
-
-

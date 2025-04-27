@@ -4,67 +4,63 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
+from django.http import JsonResponse
+from django.views.decorators.cache import never_cache
+import json
 from .forms import (
-    LoginForm, 
-    RecuperacionUsuarioForm, 
-    RecuperacionPreguntaForm, 
+    LoginForm,
+    RecuperacionUsuarioForm,
+    RecuperacionPreguntaForm,
     RecuperacionPasswordForm,
     SecurityConfigForm
 )
 from .models import User, Calificacion, Asignatura, Periodo, Profesor, Estudiante
-from django.http import JsonResponse
-import json
+
+# Constantes
+MAX_RECOVERY_ATTEMPTS = 3
+RECOVERY_TIMEOUT_MINUTES = 30
 
 # ---------- Autenticación ----------
-
-from django.contrib.auth import login, authenticate, logout
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.cache import never_cache
-from django.contrib import messages
+from django.contrib.auth import authenticate, login
+from django.views.decorators.csrf import ensure_csrf_cookie
 
-@never_cache
+@ensure_csrf_cookie
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
-        
         if user is not None:
-            login(request, user)
-            if user.primer_inicio_sesion:
-                return redirect('configurar_seguridad')
-            return redirect_to_dashboard(user)
+            if user.is_active:
+                login(request, user)
+                
+                if user.primer_inicio_sesion:
+                    return redirect('configurar_seguridad')
+                
+                if user.rol == 'estudiante':
+                    try:
+                        estudiante = Estudiante.objects.get(user=user)
+                    except Estudiante.DoesNotExist:
+                        # Crear automáticamente el perfil de estudiante si no existe
+                        matricula = f"EST{user.id:04d}"  # Genera un número de matrícula basado en el ID del usuario
+                        estudiante = Estudiante.objects.create(user=user, matricula=matricula)
+                    return redirect('calificaciones_estudiante')
+                elif user.rol == 'profesor':
+                    try:
+                        profesor = Profesor.objects.get(user=user)
+                    except Profesor.DoesNotExist:
+                        profesor = Profesor.objects.create(user=user)
+                    return redirect('lista_calificaciones')
+                elif user.rol == 'admin':
+                    return redirect('admin:index')
+            else:
+                messages.error(request, "Tu cuenta está desactivada.")
         else:
-            messages.error(request, 'Usuario o contraseña incorrectos')
-    
+            messages.error(request, "Credenciales inválidas")
     return render(request, 'academico/login.html')
 
 @login_required
-def lista_calificaciones(request):
-    try:
-        if request.user.rol != 'profesor':
-            messages.error(request, "No tienes permisos para acceder a esta página.")
-            return redirect_to_dashboard(request.user)
-            
-        try:
-            profesor = Profesor.objects.get(user=request.user)
-        except Profesor.DoesNotExist:
-            messages.error(request, "No se encontró el perfil de profesor asociado a tu cuenta.")
-            return redirect('login')
-            
-        calificaciones = Calificacion.objects.filter(profesor=profesor)
-        
-        return render(request, 'academico/lista_calificaciones.html', {
-            'calificaciones': calificaciones,
-            'user_role': request.user.rol
-        })
-        
-    except Exception as e:
-        print(f"Error in lista_calificaciones: {str(e)}")
-        messages.error(request, f"Error: {str(e)}")
-        return redirect('login')
-
 def logout_view(request):
     logout(request)
     response = redirect('login')
@@ -103,15 +99,14 @@ def redirect_to_dashboard(user):
     return redirect('login')
 
 # ---------- Recuperación de Contraseña ----------
-
 def recuperar_contrasena_usuario(request):
     form = RecuperacionUsuarioForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         username = form.cleaned_data["username"]
         try:
             user = User.objects.get(username=username)
-            if user.intentos_recuperacion >= 3 and user.ultimo_intento:
-                if timezone.now() < user.ultimo_intento + timedelta(minutes=30):
+            if user.intentos_recuperacion >= MAX_RECOVERY_ATTEMPTS and user.ultimo_intento:
+                if timezone.now() < user.ultimo_intento + timedelta(minutes=RECOVERY_TIMEOUT_MINUTES):
                     messages.error(request, "Has superado el número de intentos. Intenta nuevamente en 30 minutos.")
                     return render(request, "academico/recuperar_usuario.html", {"form": form})
                 user.intentos_recuperacion = 0
@@ -142,8 +137,8 @@ def recuperar_contrasena_pregunta(request):
         user.ultimo_intento = timezone.now()
         user.save()
         messages.error(request, "Respuesta incorrecta.")
-        if user.intentos_recuperacion >= 3:
-            messages.error(request, "Has superado el número de intentos. Intenta nuevamente en 30 minutos.")
+        if user.intentos_recuperacion >= MAX_RECOVERY_ATTEMPTS:
+            messages.error(request, f"Has superado el número de intentos. Intenta nuevamente en {RECOVERY_TIMEOUT_MINUTES} minutos.")
             return redirect("recuperar_contrasena_usuario")
 
     return render(request, "academico/recuperar_pregunta.html", {
@@ -185,7 +180,6 @@ def recuperar_contrasena_reset(request):
     })
 
 # ---------- Vistas Académicas ----------
-
 @login_required
 def lista_calificaciones(request):
     if request.user.rol != 'profesor':
@@ -219,11 +213,11 @@ def lista_calificaciones(request):
 
 @login_required
 def calificaciones_estudiante(request):
+    if request.user.rol != 'estudiante':
+        messages.error(request, "No tienes permisos para acceder a esta página.")
+        return redirect('login')
+        
     try:
-        if request.user.rol != 'estudiante':
-            messages.error(request, "No tienes permisos para acceder a esta página.")
-            return redirect('login')
-            
         estudiante = Estudiante.objects.get(user=request.user)
         calificaciones = Calificacion.objects.filter(estudiante=estudiante).order_by('periodo', 'asignatura__nombre')
         
@@ -238,53 +232,9 @@ def calificaciones_estudiante(request):
             'periodos': periodos,
             'periodo_actual': periodo_actual
         })
-    except Exception as e:
-        messages.error(request, f"Error: {str(e)}")
-        return redirect('login')
-
-@login_required
-def historial_calificaciones(request):
-    if request.user.rol != 'estudiante':
-        return render(request, 'no_autorizado.html')
-
-    try:
-        estudiante = Estudiante.objects.get(user=request.user)
     except Estudiante.DoesNotExist:
-        return render(request, 'academico/calificaciones_estudiante.html', {
-            'calificaciones': [],
-            'asignaturas': [],
-            'periodos': [],
-            'mensaje': "No tienes un perfil de estudiante asociado. Contacta al administrador."
-        })
-
-    return _render_calificaciones_estudiante(estudiante, request, historial=True)
-
-# ---------- Utilidades ----------
-
-def _render_calificaciones_estudiante(estudiante, request, historial=False):
-    asignaturas = Asignatura.objects.all()
-    periodos = Periodo.objects.all()
-    asignatura_id = request.GET.get('asignatura')
-    periodo_id = request.GET.get('periodo')
-
-    calificaciones = Calificacion.objects.filter(estudiante=estudiante)
-    calificaciones = calificaciones.order_by('periodo', 'asignatura__nombre', 'tipo_evaluacion')
-
-    if asignatura_id:
-        calificaciones = calificaciones.filter(asignatura_id=asignatura_id)
-    if periodo_id:
-        calificaciones = calificaciones.filter(periodo_id=periodo_id)
-
-    mensaje = None if calificaciones.exists() else (
-        "No hay historial de calificaciones disponible." if historial else "No hay calificaciones registradas para el período seleccionado."
-    )
-
-    return render(request, 'academico/calificaciones_estudiante.html', {
-        'calificaciones': calificaciones,
-        'asignaturas': asignaturas,
-        'periodos': periodos,
-        'mensaje': mensaje
-    })
+        messages.error(request, "No se encontró el perfil de estudiante asociado a tu cuenta.")
+        return redirect('login')
 
 @login_required
 def editar_calificacion(request, calificacion_id):
@@ -322,3 +272,7 @@ def editar_calificacion(request, calificacion_id):
 
     except Calificacion.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'La calificación no existe'})
+
+    if user is not None and user.rol == 'profesor':
+        if not hasattr(user, 'profesor'):
+            Profesor.objects.create(user=user)
