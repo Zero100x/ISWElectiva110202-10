@@ -28,7 +28,18 @@ class RecuperacionPreguntaForm(forms.Form):
     )
 
 
-class RecuperacionPasswordForm(forms.Form):
+class PasswordValidationMixin:
+    def validate_password(self, password1, password2):
+        if password1 != password2:
+            raise forms.ValidationError("Las contraseñas no coinciden.")
+        if len(password1) < 6:
+            raise forms.ValidationError("La contraseña debe tener al menos 6 caracteres.")
+        # Agregar validación de complejidad
+        if not any(c.isupper() for c in password1):
+            raise forms.ValidationError("La contraseña debe contener al menos una letra mayúscula.")
+        if not any(c.isdigit() for c in password1):
+            raise forms.ValidationError("La contraseña debe contener al menos un número.")
+class RecuperacionPasswordForm(forms.Form, PasswordValidationMixin):
     """
     Tercer paso: Formulario para establecer la nueva contraseña
     """
@@ -47,11 +58,7 @@ class RecuperacionPasswordForm(forms.Form):
         cleaned_data = super().clean()
         password1 = cleaned_data.get("nueva_contrasena")
         password2 = cleaned_data.get("confirmar_contrasena")
-
-        if password1 and password2 and password1 != password2:
-            raise forms.ValidationError("Las contraseñas no coinciden.")
-        if password1 and len(password1) < 6:
-            raise forms.ValidationError("La contraseña debe tener al menos 6 caracteres.")
+        self.validate_password(password1, password2)
         return cleaned_data
 
 
@@ -62,13 +69,13 @@ class SecurityConfigForm(forms.Form):
     pregunta_seguridad = forms.CharField(
         max_length=200,
         label="Pregunta de seguridad",
-        help_text="Establezca una pregunta de seguridad para recuperar su cuenta"
+        help_text="Establezca una pregunta de seguridad única y memorable para recuperar su cuenta"
     )
     respuesta_seguridad = forms.CharField(
         max_length=200,
         widget=forms.PasswordInput,
         label="Respuesta de seguridad",
-        help_text="Esta respuesta será requerida si necesita recuperar su contraseña"
+        help_text="Esta respuesta será requerida si necesita recuperar su contraseña. Asegúrese de recordarla."
     )
     confirmar_respuesta = forms.CharField(
         max_length=200,

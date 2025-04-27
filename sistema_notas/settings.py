@@ -3,7 +3,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'cambia-esto-por-una-clave-secreta'  # 🔒 Reemplaza esto por una clave secreta segura
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'default-secret-key-for-development')  # 🔒 Reemplaza esto por una clave secreta segura
 
 DEBUG = True  # ⚠️ No olvides ponerlo en False en producción
 

@@ -219,20 +219,28 @@ def lista_calificaciones(request):
 
 @login_required
 def calificaciones_estudiante(request):
-    if request.user.rol != 'estudiante':
-        return render(request, 'no_autorizado.html')
-
     try:
+        if request.user.rol != 'estudiante':
+            messages.error(request, "No tienes permisos para acceder a esta página.")
+            return redirect('login')
+            
         estudiante = Estudiante.objects.get(user=request.user)
-    except Estudiante.DoesNotExist:
+        calificaciones = Calificacion.objects.filter(estudiante=estudiante).order_by('periodo', 'asignatura__nombre')
+        
+        periodos = Periodo.objects.all()
+        periodo_actual = request.GET.get('periodo')
+        
+        if periodo_actual:
+            calificaciones = calificaciones.filter(periodo__id=periodo_actual)
+            
         return render(request, 'academico/calificaciones_estudiante.html', {
-            'calificaciones': [],
-            'asignaturas': [],
-            'periodos': [],
-            'mensaje': "No tienes un perfil de estudiante asociado. Contacta al administrador."
+            'calificaciones': calificaciones,
+            'periodos': periodos,
+            'periodo_actual': periodo_actual
         })
-
-    return _render_calificaciones_estudiante(estudiante, request)
+    except Exception as e:
+        messages.error(request, f"Error: {str(e)}")
+        return redirect('login')
 
 @login_required
 def historial_calificaciones(request):

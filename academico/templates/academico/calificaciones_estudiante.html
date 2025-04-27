@@ -1,45 +1,57 @@
-<h2>Mis calificaciones</h2>
-<form method="get">
-    <select name="asignatura">
-        <option value="">Todas las asignaturas</option>
-        {% for a in asignaturas %}
-            <option value="{{ a.id }}">{{ a.nombre }}</option>
-        {% endfor %}
-    </select>
-    <select name="periodo">
-        <option value="">Todos los periodos</option>
-        {% for p in periodos %}
-            <option value="{{ p.id }}">{{ p.nombre }}</option>
-        {% endfor %}
-    </select>
-    <button type="submit">Filtrar</button>
-</form>
+{% extends 'base_generic.html' %}
 
-<!-- Botones de navegación -->
-<div style="margin-top: 20px;">
-    <button onclick="window.history.back();">Retroceder</button>
-    <a href="{% url 'logout' %}">
-        <button type="button">Cerrar sesión</button>
-    </a>
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Mis Calificaciones</h2>
+        <div class="d-flex align-items-center">
+            <form class="me-3 d-flex gap-2">
+                <select name="periodo" class="form-select" onchange="this.form.submit()">
+                    <option value="">Todos los períodos</option>
+                    {% for periodo in periodos %}
+                        <option value="{{ periodo.id }}" {% if periodo.id == periodo_actual %}selected{% endif %}>
+                            {{ periodo }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <select name="asignatura" class="form-select" onchange="this.form.submit()">
+                    <option value="">Todas las asignaturas</option>
+                    {% for asignatura in asignaturas %}
+                        <option value="{{ asignatura.id }}" {% if asignatura.id == asignatura_actual %}selected{% endif %}>
+                            {{ asignatura.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+            <a href="{% url 'logout' %}" class="btn btn-danger">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </a>
+        </div>
+    </div>
+
+    {% if calificaciones %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Asignatura</th>
+                    <th>Período</th>
+                    <th>Tipo de Evaluación</th>
+                    <th>Calificación</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for calificacion in calificaciones %}
+                <tr>
+                    <td>{{ calificacion.asignatura.nombre }}</td>
+                    <td>{{ calificacion.periodo }}</td>
+                    <td>{{ calificacion.tipo_evaluacion }}</td>
+                    <td>{{ calificacion.nota }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">{{ mensaje|default:"No hay calificaciones registradas para el período seleccionado." }}</div>
+    {% endif %}
 </div>
-
-{% if mensaje %}
-    <p>{{ mensaje }}</p>
-{% else %}
-    <table>
-        <tr>
-            <th>Asignatura</th>
-            <th>Periodo</th>
-            <th>Tipo de Evaluación</th>
-            <th>Nota</th>
-        </tr>
-        {% for c in calificaciones %}
-        <tr>
-            <td>{{ c.asignatura }}</td>
-            <td>{{ c.periodo }}</td>
-            <td>{{ c.tipo_evaluacion }}</td>
-            <td>{{ c.nota }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-{% endif %}
+{% endblock %}
