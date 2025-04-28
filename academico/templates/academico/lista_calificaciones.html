@@ -2,6 +2,16 @@
 
 {% block title %}Lista de Calificaciones{% endblock %}
 
+{% block extrahead %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+    .table thead th {
+        color: white;
+        background-color: #343a40;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
     {% if messages %}
@@ -56,10 +66,6 @@
         <div class="alert alert-info">No hay calificaciones registradas.</div>
     {% endif %}
 </div>
-{% endblock %}
-
-{% block extrahead %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 {% endblock %}
 
 {% block scripts %}

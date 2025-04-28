@@ -71,9 +71,9 @@
                 <div class="flex items-center space-x-4">
                     {% if user.is_authenticated %}
                         <!-- Muestra el rol del usuario -->
-                        <span class="text-accent-200 text-sm font-medium">
+                        <span class="text-white text-sm font-medium">
                             Rol: 
-                            <span class="text-academic-primary">
+                            <span class="text-white">
                                 {% if user.is_superuser %}
                                     Administrador
                                 {% elif user.rol == 'profesor' %}

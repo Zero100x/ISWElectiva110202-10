@@ -140,7 +140,7 @@ body {
     position: absolute;
     top: 15px;
     left: 0;
-    color: #999;
+    color: white;  /* Cambiado de #999 a white */
     pointer-events: none;
     transition: all 0.3s ease;
 }
