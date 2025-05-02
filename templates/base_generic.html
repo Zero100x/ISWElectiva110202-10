@@ -1,34 +1,40 @@
 <!DOCTYPE html>
+<!-- Define el tipo de documento y idioma -->
 <html lang="es" class="h-full">
 <head>
+    <!-- Metadatos básicos -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    
+    <!-- Título dinámico que puede ser sobrescrito en templates hijos -->
     <title>{% block title %}Sistema de notas{% endblock %}</title>
-
-    <!-- Tailwind CSS -->
+    
+    <!-- Importación de Tailwind CSS desde CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Animate.css para animaciones -->
+    
+    <!-- Importación de animate.css para animaciones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-
+    
     <!-- Configuración personalizada de Tailwind -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
+                    // Extensión de la paleta de colores
                     colors: {
                         academic: {
-                            primary: '#dc2626',  // Rojo
+                            primary: '#dc2626',  // Rojo académico
                             secondary: '#171717', // Negro
                             accent: '#525252',    // Gris
-                            light: '#f5f5f5'      // Fondo claro
+                            light: '#f5f5f5'      // Blanco
                         }
                     },
+                    // Definición de animaciones personalizadas
                     animation: {
                         'float': 'float 6s ease-in-out infinite',
                         'gradient-x': 'gradient-x 8s ease infinite',
                     },
+                    // Keyframes para animaciones
                     keyframes: {
                         float: {
                             '0%, 100%': { transform: 'translateY(0)' },
@@ -43,26 +49,30 @@
             }
         }
     </script>
-
-    <!-- Para agregar más elementos en el head desde otras plantillas -->
+    
+    <!-- Bloque para añadir elementos extra al head desde templates hijos -->
     {% block extra_head %}{% endblock %}
 </head>
 
+<!-- Cuerpo del documento con clases de Tailwind para estilos base -->
 <body class="h-full bg-academic-light font-sans antialiased">
-    <!-- Navegación -->
+    <!-- Barra de navegación -->
     <nav class="bg-academic-secondary shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <!-- Logo o título del sistema -->
+                <!-- Logo/Marca del sistema -->
                 <div class="flex items-center">
-                    <span class="text-white font-bold text-xl">📊 Sistema de Notas</span>
+                    <div class="flex-shrink-0">
+                        <span class="text-white font-bold text-xl">📊 Sistema de Notas</span>
+                    </div>
                 </div>
-
-                <!-- Opciones de usuario -->
+                
+                <!-- Controles de usuario -->
                 <div class="flex items-center space-x-4">
                     {% if user.is_authenticated %}
+                        <!-- Muestra el rol del usuario -->
                         <span class="text-white text-sm font-medium">
-                            Rol:
+                            Rol: 
                             <span class="text-white">
                                 {% if user.is_superuser %}
                                     Administrador
@@ -75,10 +85,25 @@
                                 {% endif %}
                             </span>
                         </span>
+                        <!-- Menú de configuración -->
+                        <div class="relative inline-block text-left">
+                            <button id="configBtn" type="button" class="px-3 py-1 rounded-md text-sm font-medium text-white bg-gray-700 hover:bg-gray-600 transition duration-300 ease-in-out transform hover:scale-105">
+                                <i class="fas fa-cog"></i>
+                            </button>
+                            <div id="configMenu" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                                <div class="py-1">
+                                    <a href="{% url 'cambiar_seguridad' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-shield-alt mr-2"></i>Configuración de seguridad
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Botón de cierre de sesión -->
                         <a href="{% url 'logout' %}" class="px-3 py-1 rounded-md text-sm font-medium text-white bg-academic-primary hover:bg-red-700 transition duration-300 ease-in-out transform hover:scale-105">
                             Cerrar sesión
                         </a>
                     {% else %}
+                        <!-- Botón de inicio de sesión -->
                         <a href="{% url 'login' %}" class="px-3 py-1 rounded-md text-sm font-medium text-white bg-academic-primary hover:bg-red-700 transition duration-300 ease-in-out transform hover:scale-105">
                             Iniciar sesión
                         </a>
@@ -99,8 +124,21 @@
             <p>© {% now "Y" %} Sistema de Notas Académicas - Ingeniería de Software</p>
         </div>
     </footer>
+    <script>
+        // Manejo del menú desplegable de configuración
+        const configBtn = document.getElementById('configBtn');
+        const configMenu = document.getElementById('configMenu');
 
-    <!-- Para insertar scripts desde otras plantillas -->
-    {% block extra_js %}{% endblock %}
+        configBtn.addEventListener('click', () => {
+            configMenu.classList.toggle('hidden');
+        });
+
+        // Cerrar el menú al hacer clic fuera
+        document.addEventListener('click', (event) => {
+            if (!configBtn.contains(event.target) && !configMenu.contains(event.target)) {
+                configMenu.classList.add('hidden');
+            }
+        });
+    </script>
 </body>
 </html>

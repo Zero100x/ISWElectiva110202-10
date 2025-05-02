@@ -4,30 +4,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Classmate - Portal Académico</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Optimización de carga de recursos críticos -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" as="style">
+    <link rel="preload" href="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js" as="script">
+
+    <!-- Carga diferida de recursos no críticos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/login.css' %}">
+
+    <!-- Optimización de iconos Font Awesome -->
+    <style>
+        .fas {
+            font-display: swap;
+            will-change: transform;
+            transform: translateZ(0);
+        }
+
+        /* Optimización de rendimiento */
+        .login-card {
+            contain: layout style paint;
+            transform: translateZ(0);
+            will-change: transform;
+        }
+
+        /* Prevención de CLS */
+        .form-group {
+            min-height: 60px;
+            contain: layout style;
+        }
+
+        /* Optimización de animaciones */
+        @media (prefers-reduced-motion: reduce) {
+            .animate__animated {
+                animation: none !important;
+                transition: none !important;
+            }
+
+            .holographic-effect,
+            .particles-container {
+                display: none !important;
+            }
+        }
+
+        /* Optimización de renderizado */
+        .input-icon,
+        .btn-arrow {
+            will-change: transform;
+            transform: translateZ(0);
+        }
+    </style>
 </head>
 <body>
     <!-- Fondo de partículas futurista -->
     <div class="particles-container" id="particles-js"></div>
-    
+
     <!-- Efecto de grid holográfico -->
     <div class="grid-effect"></div>
-    
+
     <!-- Contenedor principal con animación -->
     <div class="login-container animate__animated animate__fadeIn">
         <div class="login-card">
             <!-- Efecto holográfico superior -->
             <div class="holographic-effect"></div>
-            
+
             <!-- Efecto de esquinas futuristas -->
             <div class="corner corner-tl"></div>
             <div class="corner corner-tr"></div>
             <div class="corner corner-bl"></div>
             <div class="corner corner-br"></div>
-            
+
             <!-- Encabezado con animación -->
             <div class="login-header animate__animated animate__fadeInDown">
                 <div class="logo">
@@ -51,7 +101,7 @@
 
                 <form method="post" class="login-form animate__animated animate__fadeIn animate__delay-2s">
                     {% csrf_token %}
-                    
+
                     <!-- Campo Usuario -->
                     <div class="form-group">
                         <i class="fas fa-user input-icon"></i>
@@ -59,7 +109,7 @@
                         <label for="id_username">Usuario o Email</label>
                         <div class="underline"></div>
                     </div>
-                    
+
                     <!-- Campo Contraseña -->
                     <div class="form-group">
                         <i class="fas fa-lock input-icon"></i>
@@ -70,7 +120,7 @@
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
-                    
+
                     <!-- Botón de Submit -->
                     <button type="submit" class="login-btn">
                         <span>Acceder al Portal</span>
@@ -108,17 +158,17 @@
             if (document.getElementById('particles-js')) {
                 particlesJS('particles-js', {
                     particles: {
-                        number: { 
-                            value: 120, 
-                            density: { 
-                                enable: true, 
-                                value_area: 1000 
-                            } 
+                        number: {
+                            value: 120,
+                            density: {
+                                enable: true,
+                                value_area: 1000
+                            }
                         },
-                        color: { 
-                            value: ["#e63946", "#ffffff", "#aaaaaa"] 
+                        color: {
+                            value: ["#e63946", "#ffffff", "#aaaaaa"]
                         },
-                        shape: { 
+                        shape: {
                             type: ["circle", "triangle", "edge"],
                             stroke: {
                                 width: 0,
@@ -213,12 +263,12 @@
                     const yAxis = (window.innerHeight / 2 - e.pageY) / 15;
                     card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg) scale(1.02)`;
                     card.style.boxShadow = `${xAxis * 2}px ${yAxis * 2}px 30px rgba(0, 0, 0, 0.3)`;
-                    
+
                     // Efecto parallax en elementos internos
                     const logo = document.querySelector('.logo-icon');
                     const title = document.querySelector('.logo h1');
                     const form = document.querySelector('.login-form');
-                    
+
                     if(logo) logo.style.transform = `translateZ(50px)`;
                     if(title) title.style.transform = `translateZ(30px)`;
                     if(form) form.style.transform = `translateZ(20px)`;
@@ -232,12 +282,12 @@
                     card.style.transition = 'all 0.5s ease';
                     card.style.transform = 'rotateY(0deg) rotateX(0deg) scale(1)';
                     card.style.boxShadow = '0 25px 45px rgba(0, 0, 0, 0.2)';
-                    
+
                     // Resetear elementos internos
                     const logo = document.querySelector('.logo-icon');
                     const title = document.querySelector('.logo h1');
                     const form = document.querySelector('.login-form');
-                    
+
                     if(logo) logo.style.transform = `translateZ(0px)`;
                     if(title) title.style.transform = `translateZ(0px)`;
                     if(form) form.style.transform = `translateZ(0px)`;
@@ -247,12 +297,14 @@
             // Mostrar/ocultar contraseña
             const showPasswordBtn = document.querySelector('.show-password');
             const passwordInput = document.getElementById('id_password');
-            
+
             if(showPasswordBtn && passwordInput) {
-                showPasswordBtn.addEventListener('click', function() {
-                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                    passwordInput.setAttribute('type', type);
-                    this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+                showPasswordBtn.addEventListener('click', () => {
+                    requestAnimationFrame(() => {
+                        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                        passwordInput.setAttribute('type', type);
+                        showPasswordBtn.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+                    });
                 });
             }
 
