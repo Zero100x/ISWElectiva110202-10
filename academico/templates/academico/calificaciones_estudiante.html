@@ -1,54 +1,69 @@
 {% extends 'base_generic.html' %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Mis Calificaciones</h2>
-        <div class="d-flex align-items-center">
-            <form class="me-3 d-flex gap-2">
-                <select name="periodo" class="form-select" onchange="this.form.submit()">
-                    <option value="">Todos los períodos</option>
-                    {% for periodo in periodos %}
-                        <option value="{{ periodo.id }}" {% if periodo.id == periodo_actual %}selected{% endif %}>
-                            {{ periodo }}
-                        </option>
-                    {% endfor %}
-                </select>
-                <select name="asignatura" class="form-select" onchange="this.form.submit()">
-                    <option value="">Todas las asignaturas</option>
-                    {% for asignatura in asignaturas %}
-                        <option value="{{ asignatura.id }}" {% if asignatura.id == asignatura_actual %}selected{% endif %}>
-                            {{ asignatura.nombre }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </form>
-        </div>
+
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold text-academic-secondary mb-6">📋 Lista de Calificaciones</h2>
+    
+   <!-- Filtros -->
+   <form method="get" class="flex flex-wrap gap-4 items-center mb-6">
+    <div>
+        <label class="block mb-1 font-semibold text-sm text-gray-700">Asignatura:</label>
+        <select name="asignatura" class="border-gray-300 rounded p-2">
+            <option value="">Todas</option>
+            {% for asignatura in asignaturas %}
+                <option value="{{ asignatura.id }}" {% if request.GET.asignatura == asignatura.id|stringformat:"s" %}selected{% endif %}>
+                    {{ asignatura.nombre }}
+                </option>
+            {% endfor %}
+        </select>
     </div>
 
-    {% if calificaciones %}
-        <table class="table table-striped">
-            <thead>
+    <div>
+        <label class="block mb-1 font-semibold text-sm text-gray-700">Período:</label>
+        <select name="periodo" class="border-gray-300 rounded p-2">
+            <option value="">Todos</option>
+            {% for periodo in periodos %}
+                <option value="{{ periodo.id }}" {% if request.GET.periodo == periodo.id|stringformat:"s" %}selected{% endif %}>
+                    {{ periodo.nombre }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="self-end">
+        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">Filtrar</button>
+    </div>
+</form>
+    
+    <!-- Tabla (se mantiene igual) -->
+    < class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 border border-gray-300">
+            <thead class="bg-academic-primary text-white">
                 <tr>
-                    <th>Asignatura</th>
-                    <th>Período</th>
-                    <th>Tipo de Evaluación</th>
-                    <th>Calificación</th>
+                    <th class="px-4 py-2 text-left text-sm font-semibold">Asignatura</th>
+                    <th class="px-4 py-2 text-left text-sm font-semibold">Período</th>
+                    <th class="px-4 py-2 text-left text-sm font-semibold">Calificación</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="bg-white divide-y divide-gray-100">
                 {% for calificacion in calificaciones %}
-                <tr>
-                    <td>{{ calificacion.asignatura.nombre }}</td>
-                    <td>{{ calificacion.periodo }}</td>
-                    <td>{{ calificacion.tipo_evaluacion }}</td>
-                    <td>{{ calificacion.nota }}</td>
-                </tr>
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-2">{{ calificacion.asignatura.nombre }}</td>
+                        <td class="px-4 py-2">{{ calificacion.periodo.nombre }}</td>
+                        <td class="px-4 py-2">{{ calificacion.nota|default:"-"|floatformat:2 }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-4 py-4 text-center text-gray-500">No hay calificaciones registradas.</td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
-    {% else %}
-        <div class="alert alert-info">{{ mensaje|default:"No hay calificaciones registradas para el período seleccionado." }}</div>
-    {% endif %}
-</div>
+    
+    
+    <!-- Footer -->
+    <footer style="margin-top: 50px; text-align: center; color: #7f8c8d; font-size: 0.9em;">
+    </footer>
+
 {% endblock %}

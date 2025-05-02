@@ -6,10 +6,10 @@
 <div class="bg-white p-6 rounded-lg shadow-md">
     <h2 class="text-2xl font-bold text-academic-secondary mb-6">📋 Lista de Calificaciones</h2>
 
-    <!-- Botones -->
+    <!-- Botones en verde -->
     <div class="flex flex-wrap items-center gap-4 mb-6">
-        <a href="{% url 'crear_asignatura' %}" class="bg-academic-primary text-white px-4 py-2 rounded hover:bg-red-700 transition">Nueva Asignatura</a>
-        <a href="{% url 'crear_calificacion' %}" class="bg-academic-primary text-white px-4 py-2 rounded hover:bg-red-700 transition">Nueva Calificación</a>
+        <a href="{% url 'crear_asignatura' %}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">Nueva Asignatura</a>
+        <a href="{% url 'crear_calificacion' %}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">Nueva Calificación</a>
     </div>
 
     <!-- Filtros -->
@@ -19,7 +19,9 @@
             <select name="asignatura" class="border-gray-300 rounded p-2">
                 <option value="">Todas</option>
                 {% for asignatura in asignaturas %}
-                    <option value="{{ asignatura }}" {% if request.GET.asignatura == asignatura %}selected{% endif %}>{{ asignatura }}</option>
+                    <option value="{{ asignatura.id }}" {% if request.GET.asignatura == asignatura.id|stringformat:"s" %}selected{% endif %}>
+                        {{ asignatura.nombre }}
+                    </option>
                 {% endfor %}
             </select>
         </div>
@@ -29,17 +31,19 @@
             <select name="periodo" class="border-gray-300 rounded p-2">
                 <option value="">Todos</option>
                 {% for periodo in periodos %}
-                    <option value="{{ periodo }}" {% if request.GET.periodo == periodo %}selected{% endif %}>{{ periodo }}</option>
+                    <option value="{{ periodo.id }}" {% if request.GET.periodo == periodo.id|stringformat:"s" %}selected{% endif %}>
+                        {{ periodo.nombre }}
+                    </option>
                 {% endfor %}
             </select>
         </div>
 
         <div class="self-end">
-            <button type="submit" class="bg-academic-primary text-white px-4 py-2 rounded hover:bg-red-700 transition">Filtrar</button>
+            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">Filtrar</button>
         </div>
     </form>
 
-    <!-- Tabla -->
+    <!-- Tabla (se mantiene igual) -->
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200 border border-gray-300">
             <thead class="bg-academic-primary text-white">
