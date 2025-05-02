@@ -1,4 +1,5 @@
 from django import forms
+from .models import Asignatura, Calificacion, Estudiante, Periodo
 
 class LoginForm(forms.Form):
     username = forms.CharField(label="Usuario", max_length=150)
@@ -119,3 +120,22 @@ class ResetPasswordForm(forms.Form):
                     Profesor.objects.create(user=user)
             return user
         return cleaned_data
+    
+class AsignaturaForm(forms.ModelForm):
+    class Meta:
+        model = Asignatura
+        fields = ['nombre']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'})
+        }
+
+class CalificacionForm(forms.ModelForm):
+    class Meta:
+        model = Calificacion
+        fields = ['estudiante', 'asignatura', 'periodo', 'nota']
+        widgets = {
+            'estudiante': forms.Select(attrs={'class': 'form-control'}),
+            'asignatura': forms.Select(attrs={'class': 'form-control'}),
+            'periodo': forms.Select(attrs={'class': 'form-control'}),
+            'nota': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1', 'min': '0', 'max': '5'}),
+        }

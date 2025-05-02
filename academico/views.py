@@ -6,7 +6,16 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.http import JsonResponse
 from django.views.decorators.cache import never_cache
+from django.views.generic import CreateView
+from django.urls import reverse_lazy
+from .models import Asignatura
+from .forms import AsignaturaForm
+from .models import Calificacion
+from .forms import CalificacionForm
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.utils.decorators import method_decorator
 import json
+
 from .forms import (
     LoginForm,
     RecuperacionUsuarioForm,
@@ -276,3 +285,80 @@ def editar_calificacion(request, calificacion_id):
     if user is not None and user.rol == 'profesor':
         if not hasattr(user, 'profesor'):
             Profesor.objects.create(user=user)
+
+
+#Historia 4
+
+@login_required
+def lista_calificaciones(request):
+    if request.user.rol != 'profesor':
+        messages.error(request, "Acceso restringido a profesores.")
+        return redirect('login')
+
+    try:
+        profesor = Profesor.objects.get(user=request.user)
+    except Profesor.DoesNotExist:
+        messages.error(request, "Perfil de profesor no encontrado.")
+        return redirect('login')
+
+    # Filtros
+    asignatura_id = request.GET.get('asignatura')
+    periodo_id = request.GET.get('periodo')
+
+    # Query optimizado con select_related
+    calificaciones = Calificacion.objects.filter(
+        profesor=profesor
+    ).select_related('estudiante__user', 'asignatura', 'periodo')
+
+    if asignatura_id:
+        calificaciones = calificaciones.filter(asignatura_id=asignatura_id)
+    if periodo_id:
+        calificaciones = calificaciones.filter(periodo_id=periodo_id)
+
+    # Contexto para template
+    context = {
+        'calificaciones': calificaciones,
+        'asignaturas': Asignatura.objects.all(),
+        'periodos': Periodo.objects.all(),
+        'mensaje': "No hay calificaciones registradas." if not calificaciones.exists() else None
+    }
+    return render(request, 'academico/lista_calificaciones.html', context)
+
+
+
+
+class CrearAsignaturaView(CreateView):
+    model = Asignatura
+    form_class = AsignaturaForm  # Crear este formulario (paso 3)
+    template_name = 'academico/crear_asignatura.html'
+    success_url = reverse_lazy('lista_calificaciones')  # Redirigir a la lista de calificaciones
+    
+class CrearCalificacionView(CreateView):
+    model = Calificacion
+    form_class = CalificacionForm  # Crear este formulario (paso 3)
+    template_name = 'academico/crear_calificacion.html'
+    success_url = reverse_lazy('lista_calificaciones')
+
+    def form_valid(self, form):
+        # Asignar automáticamente el profesor logueado
+        form.instance.profesor = Profesor.objects.get(user=self.request.user)
+        return super().form_valid(form)
+
+# --- Función de validación (añádela al inicio del archivo) ---
+def es_profesor(user):
+    return user.rol == 'profesor'  # Asegúrate de que 'rol' sea el campo correcto en tu modelo User
+
+# --- Decoradores para vistas basadas en clase ---
+@method_decorator([login_required, user_passes_test(es_profesor)], name='dispatch')
+class CrearCalificacionView(CreateView):
+    model = Calificacion
+    form_class = CalificacionForm
+    template_name = 'academico/crear_calificacion.html'
+    success_url = reverse_lazy('lista_calificaciones')
+
+    def form_valid(self, form):
+        form.instance.profesor = Profesor.objects.get(user=self.request.user)
+        return super().form_valid(form)
+
+
+

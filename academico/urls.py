@@ -1,5 +1,7 @@
 from django.urls import path
+from .views import CrearAsignaturaView, CrearCalificacionView
 from . import views
+
 
 urlpatterns = [
     path('login/', views.login_view, name='login'),
@@ -13,4 +15,12 @@ urlpatterns = [
     path('recuperar-contrasena/reset/', views.recuperar_contrasena_reset, name='recuperar_contrasena_reset'),
     # Agregar esta nueva ruta
     path('configurar-seguridad/', views.configurar_seguridad, name='configurar_seguridad'),
+    #historia 4
+     path('profesor/calificaciones/', views.lista_calificaciones, name='lista_calificaciones'),
+     
+   
+
+path('asignatura/crear/', CrearAsignaturaView.as_view(), name='crear_asignatura'),
+path('calificacion/crear/', CrearCalificacionView.as_view(), name='crear_calificacion'),
 ]
+

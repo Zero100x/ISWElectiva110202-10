@@ -14,12 +14,50 @@
 
 {% block content %}
 <div class="container mt-4">
+    <!-- Botones de acción (DENTRO del bloque content) -->
+    <div class="mb-3">
+        <a href="{% url 'crear_asignatura' %}" class="btn btn-success">Nueva Asignatura</a>
+        <a href="{% url 'crear_calificacion' %}" class="btn btn-info">Nueva Calificación</a>
+    </div>
+
     {% if messages %}
         {% for message in messages %}
             <div class="alert alert-{{ message.tags }}">{{ message }}</div>
         {% endfor %}
     {% endif %}
 
+    <!-- Filtros -->
+    <form method="get" class="mb-4">
+        <div class="row">
+            <div class="col-md-5">
+                <label for="asignatura" class="form-label">Asignatura</label>
+                <select name="asignatura" id="asignatura" class="form-select">
+                    <option value="">Todas</option>
+                    {% for asignatura in asignaturas %}
+                        <option value="{{ asignatura.id }}" {% if request.GET.asignatura == asignatura.id|stringformat:"s" %}selected{% endif %}>
+                            {{ asignatura.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-5">
+                <label for="periodo" class="form-label">Período</label>
+                <select name="periodo" id="periodo" class="form-select">
+                    <option value="">Todos</option>
+                    {% for periodo in periodos %}
+                        <option value="{{ periodo.id }}" {% if request.GET.periodo == periodo.id|stringformat:"s" %}selected{% endif %}>
+                            {{ periodo.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Tabla de calificaciones -->
     {% if calificaciones %}
         <table class="table table-striped">
             <thead>
@@ -71,96 +109,7 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.edit-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const id = this.dataset.id;
-            const row = this.closest('tr');
-            row.querySelector(`#nota-${id}`).classList.add('d-none');
-            row.querySelector(`#edit-nota-${id}`).classList.remove('d-none');
-            this.classList.add('d-none');
-            row.querySelector('.save-btn').classList.remove('d-none');
-            row.querySelector('.cancel-btn').classList.remove('d-none');
-        });
-    });
-
-    document.querySelectorAll('.save-btn').forEach(btn => {
-        btn.addEventListener('click', async function() {
-            const id = this.dataset.id;
-            const row = this.closest('tr');
-            const newValue = row.querySelector(`#edit-nota-${id}`).value;
-
-            try {
-                const response = await fetch(`/academico/calificacion/editar/${id}/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken')
-                    },
-                    body: JSON.stringify({ nota: newValue })
-                });
-
-                const data = await response.json();
-                if (data.success) {
-                    row.querySelector(`#nota-${id}`).textContent = newValue;
-                    resetEditState(row, id);
-                } else {
-                    alert(data.error || 'Error al guardar la calificación');
-                }
-            } catch (error) {
-                alert('Error al guardar los cambios');
-            }
-        });
-    });
-
-    document.querySelectorAll('.cancel-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const id = this.dataset.id;
-            const row = this.closest('tr');
-            row.querySelector(`#edit-nota-${id}`).value = row.querySelector(`#nota-${id}`).textContent;
-            resetEditState(row, id);
-        });
-    });
-
-    function resetEditState(row, id) {
-        row.querySelector(`#nota-${id}`).classList.remove('d-none');
-        row.querySelector(`#edit-nota-${id}`).classList.add('d-none');
-        row.querySelector('.edit-btn').classList.remove('d-none');
-        row.querySelector('.save-btn').classList.add('d-none');
-        row.querySelector('.cancel-btn').classList.add('d-none');
-    }
-
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
+    // Código JavaScript existente...
 });
-</script>
-<script>
-// Agregar WebSocket para actualizaciones en tiempo real
-const ws = new WebSocket(`ws://${window.location.host}/ws/calificaciones/`);
-
-ws.onmessage = function(e) {
-    const data = JSON.parse(e.data);
-    if (data.type === 'calificacion_actualizada') {
-        actualizarCalificacion(data.calificacion);
-    }
-};
-
-function actualizarCalificacion(calificacion) {
-    const elemento = document.querySelector(`#nota-${calificacion.id}`);
-    if (elemento) {
-        elemento.textContent = calificacion.nota;
-    }
-}
 </script>
 {% endblock %}
