@@ -22,5 +22,8 @@ urlpatterns = [
 
 path('asignatura/crear/', CrearAsignaturaView.as_view(), name='crear_asignatura'),
 path('calificacion/crear/', CrearCalificacionView.as_view(), name='crear_calificacion'),
+
+#HISTORIA 2 
+ path('editar-calificacion/<int:pk>/', views.editar_calificacion, name='editar_calificacion'),
 ]
 

@@ -134,8 +134,30 @@ class CalificacionForm(forms.ModelForm):
         model = Calificacion
         fields = ['estudiante', 'asignatura', 'periodo', 'nota']
         widgets = {
-            'estudiante': forms.Select(attrs={'class': 'form-control'}),
-            'asignatura': forms.Select(attrs={'class': 'form-control'}),
-            'periodo': forms.Select(attrs={'class': 'form-control'}),
-            'nota': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1', 'min': '0', 'max': '5'}),
+            'estudiante': forms.Select(attrs={
+                'class': 'border-gray-300 rounded p-2 w-full',
+                'disabled': 'disabled'  # Hacemos el estudiante no editable
+            }),
+            'asignatura': forms.Select(attrs={
+                'class': 'border-gray-300 rounded p-2 w-full'
+            }),
+            'periodo': forms.Select(attrs={
+                'class': 'border-gray-300 rounded p-2 w-full'
+            }),
+            'nota': forms.NumberInput(attrs={
+                'class': 'border-gray-300 rounded p-2 w-full',
+                'step': '0.1',
+                'min': '0',
+                'max': '5'
+            }),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.fields['estudiante'].disabled = True
+        
+        
+
+
+    

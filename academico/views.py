@@ -14,6 +14,7 @@ from .models import Calificacion
 from .forms import CalificacionForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils.decorators import method_decorator
+from django.shortcuts import get_object_or_404, redirect
 import json
 
 from .forms import (
@@ -360,5 +361,29 @@ class CrearCalificacionView(CreateView):
         form.instance.profesor = Profesor.objects.get(user=self.request.user)
         return super().form_valid(form)
 
+
+# HISTIRA 2
+
+
+@login_required
+@user_passes_test(lambda u: u.profesor, login_url='/login/')
+def editar_calificacion(request, pk):
+    calificacion = get_object_or_404(Calificacion, pk=pk)
+    
+    if request.method == 'POST':
+        form = CalificacionForm(request.POST, instance=calificacion)
+        if form.is_valid():
+            # Asegurarnos de que el estudiante no se modifique
+            calificacion_editada = form.save(commit=False)
+            calificacion_editada.estudiante = calificacion.estudiante
+            calificacion_editada.save()
+            return redirect('lista_calificaciones')
+    else:
+        form = CalificacionForm(instance=calificacion)
+    
+    return render(request, 'academico/editar_calificacion.html', {
+        'form': form,
+        'calificacion': calificacion
+    })
 
 

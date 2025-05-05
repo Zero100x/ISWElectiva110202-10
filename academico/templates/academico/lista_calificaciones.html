@@ -43,7 +43,7 @@
         </div>
     </form>
 
-    <!-- Tabla (se mantiene igual) -->
+    <!-- Tabla con botón de edición -->
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200 border border-gray-300">
             <thead class="bg-academic-primary text-white">
@@ -52,6 +52,7 @@
                     <th class="px-4 py-2 text-left text-sm font-semibold">Asignatura</th>
                     <th class="px-4 py-2 text-left text-sm font-semibold">Período</th>
                     <th class="px-4 py-2 text-left text-sm font-semibold">Calificación</th>
+                    <th class="px-4 py-2 text-left text-sm font-semibold">Acciones</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-100">
@@ -61,10 +62,16 @@
                         <td class="px-4 py-2">{{ calificacion.asignatura.nombre }}</td>
                         <td class="px-4 py-2">{{ calificacion.periodo.nombre }}</td>
                         <td class="px-4 py-2">{{ calificacion.nota|default:"-"|floatformat:2 }}</td>
+                        <td class="px-4 py-2">
+                            <a href="{% url 'editar_calificacion' calificacion.id %}" 
+                               class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition text-sm">
+                                Editar
+                            </a>
+                        </td>
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="4" class="px-4 py-4 text-center text-gray-500">No hay calificaciones registradas.</td>
+                        <td colspan="5" class="px-4 py-4 text-center text-gray-500">No hay calificaciones registradas.</td>
                     </tr>
                 {% endfor %}
             </tbody>
