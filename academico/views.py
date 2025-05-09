@@ -16,6 +16,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils.decorators import method_decorator
 from django.shortcuts import get_object_or_404, redirect
 import json
+from django.db.models import Avg
 
 from .forms import (
     LoginForm,
@@ -63,7 +64,7 @@ def login_view(request):
                         profesor = Profesor.objects.create(user=user)
                     return redirect('lista_calificaciones')
                 elif user.rol == 'admin':
-                    return redirect('admin:index')
+                    return redirect('informes_rendimiento')
             else:
                 messages.error(request, "Tu cuenta está desactivada.")
         else:
@@ -105,7 +106,7 @@ def redirect_to_dashboard(user):
     if user.rol == 'estudiante':
         return redirect('calificaciones_estudiante')
     if user.rol == 'admin':
-        return redirect('admin:index')
+        return redirect('informes_rendimiento')  # Cambiar a la página de informes
     return redirect('login')
 
 # ---------- Recuperación de Contraseña ----------
@@ -385,5 +386,50 @@ def editar_calificacion(request, pk):
         'form': form,
         'calificacion': calificacion
     })
+
+
+@login_required
+def informes_rendimiento(request):
+    # Verificar si el usuario es administrador
+    if not request.user.rol == 'admin':
+        messages.error(request, "Acceso restringido a administradores.")
+        return redirect('login')
+        
+    # Obtener todos los períodos para el filtro
+    periodos = Periodo.objects.all()
+    asignaturas = Asignatura.objects.all()
+    
+    # Filtros
+    periodo_seleccionado = request.GET.get('periodo')
+    asignatura_seleccionada = request.GET.get('asignatura')
+    
+    # Query base
+    calificaciones = Calificacion.objects.all()
+    
+    # Aplicar filtros si están presentes
+    if periodo_seleccionado:
+        calificaciones = calificaciones.filter(periodo_id=periodo_seleccionado)
+    if asignatura_seleccionada:
+        calificaciones = calificaciones.filter(asignatura_id=asignatura_seleccionada)
+    
+    # Calcular estadísticas
+    total_estudiantes = calificaciones.values('estudiante').distinct().count()
+    promedio_general = calificaciones.aggregate(Avg('nota'))['nota__avg'] or 0
+    aprobados = calificaciones.filter(nota__gte=3.0).count()
+    reprobados = calificaciones.filter(nota__lt=3.0).count()
+    
+    context = {
+        'periodos': periodos,
+        'asignaturas': asignaturas,
+        'calificaciones': calificaciones,
+        'total_estudiantes': total_estudiantes,
+        'promedio_general': round(promedio_general, 2),
+        'aprobados': aprobados,
+        'reprobados': reprobados,
+        'periodo_seleccionado': periodo_seleccionado,
+        'asignatura_seleccionada': asignatura_seleccionada
+    }
+    
+    return render(request, 'academico/informes_rendimiento.html', context)
 
 

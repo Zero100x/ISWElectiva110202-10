@@ -50,6 +50,9 @@
         }
     </script>
     
+    <!-- Importación de Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <!-- Bloque para añadir elementos extra al head desde templates hijos -->
     {% block extra_head %}{% endblock %}
 </head>
@@ -68,45 +71,34 @@
                 </div>
                 
                 <!-- Controles de usuario -->
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center">
                     {% if user.is_authenticated %}
-                        <!-- Muestra el rol del usuario -->
-                        <span class="text-white text-sm font-medium">
-                            Rol: 
-                            <span class="text-white">
-                                {% if user.is_superuser %}
-                                    Administrador
-                                {% elif user.rol == 'profesor' %}
-                                    Profesor
-                                {% elif user.rol == 'estudiante' %}
-                                    Estudiante
-                                {% else %}
-                                    Usuario
-                                {% endif %}
-                            </span>
-                        </span>
-                        <!-- Menú de configuración -->
-                        <div class="relative inline-block text-left">
-                            <button id="configBtn" type="button" class="px-3 py-1 rounded-md text-sm font-medium text-white bg-gray-700 hover:bg-gray-600 transition duration-300 ease-in-out transform hover:scale-105">
-                                <i class="fas fa-cog"></i>
-                            </button>
-                            <div id="configMenu" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                                <div class="py-1">
-                                    <a href="{% url 'cambiar_seguridad' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                        <i class="fas fa-shield-alt mr-2"></i>Configuración de seguridad
-                                    </a>
-                                </div>
+                    <div class="relative flex items-center space-x-4">
+                        <!-- Avatar y nombre de usuario -->
+                        <div class="flex items-center space-x-3 bg-gray-800 rounded-full px-4 py-2">
+                            <div class="w-8 h-8 rounded-full bg-academic-primary flex items-center justify-center text-white font-bold">
+                                {{ user.username|make_list|first|upper }}
+                            </div>
+                            <span class="text-white font-medium">{{ user.username }}</span>
+                        </div>
+                        
+                        <!-- Botón de configuración -->
+                        <button id="configBtn" type="button" class="px-3 py-1 rounded-md text-sm font-medium text-white bg-gray-700 hover:bg-gray-600 transition duration-300 ease-in-out transform hover:scale-105">
+                            <i class="fas fa-cog hover:animate-spin"></i>
+                        </button>
+                        <div id="configMenu" class="hidden absolute right-0 top-full mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+                            <div class="py-1">
+                                <a href="{% url 'cambiar_seguridad' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-shield-alt mr-2"></i>Configuración de seguridad
+                                </a>
                             </div>
                         </div>
+                        
                         <!-- Botón de cierre de sesión -->
                         <a href="{% url 'logout' %}" class="px-3 py-1 rounded-md text-sm font-medium text-white bg-academic-primary hover:bg-red-700 transition duration-300 ease-in-out transform hover:scale-105">
                             Cerrar sesión
                         </a>
-                    {% else %}
-                        <!-- Botón de inicio de sesión -->
-                        <a href="{% url 'login' %}" class="px-3 py-1 rounded-md text-sm font-medium text-white bg-academic-primary hover:bg-red-700 transition duration-300 ease-in-out transform hover:scale-105">
-                            Iniciar sesión
-                        </a>
+                    </div>
                     {% endif %}
                 </div>
             </div>
