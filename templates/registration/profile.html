@@ -1,0 +1,18 @@
+<div class="user-info">
+    <h3>{{ user.username }}</h3>
+    <div class="role-box">
+        <span class="user-role">{{ user.get_rol_display }}</span>
+    </div>
+</div>
+<div class="user-info">
+    <h3>{{ user.username }}</h3>
+    <div class="role-box">
+        {% if user.groups.all %}
+            {% for group in user.groups.all %}
+                <span class="user-role">{{ group.name }}</span>
+            {% endfor %}
+        {% else %}
+            <span class="user-role">Usuario Regular</span>
+        {% endif %}
+    </div>
+</div>

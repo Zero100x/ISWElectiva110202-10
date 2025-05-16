@@ -51,7 +51,10 @@
     </script>
     
     <!-- Importación de Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
+          crossorigin="anonymous" 
+          referrerpolicy="no-referrer" />
     
     <!-- Bloque para añadir elementos extra al head desde templates hijos -->
     {% block extra_head %}{% endblock %}
@@ -79,7 +82,10 @@
                             <div class="w-8 h-8 rounded-full bg-academic-primary flex items-center justify-center text-white font-bold">
                                 {{ user.username|make_list|first|upper }}
                             </div>
-                            <span class="text-white font-medium">{{ user.username }}</span>
+                            <div class="flex flex-col">
+                                <span class="text-white font-medium">{{ user.username }}</span>
+                                <span class="text-gray-400 text-xs">{{ user.get_rol_display }}</span>
+                            </div>
                         </div>
                         
                         <!-- Botón de configuración -->
@@ -88,7 +94,7 @@
                         </button>
                         <div id="configMenu" class="hidden absolute right-0 top-full mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
                             <div class="py-1">
-                                <a href="{% url 'cambiar_seguridad' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <a href="{% url 'configurar_seguridad' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                     <i class="fas fa-shield-alt mr-2"></i>Configuración de seguridad
                                 </a>
                             </div>
@@ -120,11 +126,24 @@
         // Manejo del menú desplegable de configuración
         const configBtn = document.getElementById('configBtn');
         const configMenu = document.getElementById('configMenu');
-
+    
+        // Verificar el rol del usuario y mostrar el correspondiente
+        {% if user.is_authenticated %}
+            {% if user.groups.all.0.name == 'Estudiante' %}
+                document.getElementById('userRole').textContent = 'Estudiante';
+            {% elif user.groups.all.0.name == 'Profesor' %}
+                document.getElementById('userRole').textContent = 'Profesor';
+            {% elif user.is_superuser %}
+                document.getElementById('userRole').textContent = 'Administrador';
+            {% else %}
+                document.getElementById('userRole').textContent = 'Usuario Regular';
+            {% endif %}
+        {% endif %}
+    
         configBtn.addEventListener('click', () => {
             configMenu.classList.toggle('hidden');
         });
-
+    
         // Cerrar el menú al hacer clic fuera
         document.addEventListener('click', (event) => {
             if (!configBtn.contains(event.target) && !configMenu.contains(event.target)) {

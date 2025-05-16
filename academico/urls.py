@@ -7,23 +7,21 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('lista_calificaciones/', views.lista_calificaciones, name='lista_calificaciones'),
-   
     path('calificaciones_estudiante/', views.calificaciones_estudiante, name='calificaciones_estudiante'),
     # Recuperación de contraseña
     path('recuperar-contrasena/', views.recuperar_contrasena_usuario, name='recuperar_contrasena_usuario'),
     path('recuperar-contrasena/pregunta/', views.recuperar_contrasena_pregunta, name='recuperar_contrasena_pregunta'),
     path('recuperar-contrasena/reset/', views.recuperar_contrasena_reset, name='recuperar_contrasena_reset'),
-    # Cambiar el nombre de la ruta para que coincida con el template
-    path('configurar-seguridad/', views.configurar_seguridad, name='cambiar_seguridad'),
-    #historia 4
-     path('profesor/calificaciones/', views.lista_calificaciones, name='lista_calificaciones'),
-     
-   
-
-path('asignatura/crear/', CrearAsignaturaView.as_view(), name='crear_asignatura'),
-path('calificacion/crear/', CrearCalificacionView.as_view(), name='crear_calificacion'),
-path('informes-rendimiento/', views.informes_rendimiento, name='informes_rendimiento'),
-#HISTORIA 2 
- path('editar-calificacion/<int:pk>/', views.editar_calificacion, name='editar_calificacion'),
+    # Ruta para configurar la seguridad
+    path('configurar-seguridad/', views.configurar_seguridad, name='configurar_seguridad'),
+    path('profesor/calificaciones/', views.lista_calificaciones, name='lista_calificaciones'),
+    path('exportar-pdf-individual/<int:estudiante_id>/', views.exportar_pdf_individual, name='exportar_pdf_individual'),
+    path('exportar-excel-individual/<int:estudiante_id>/', views.exportar_excel_individual, name='exportar_excel_individual'),
+    path('exportar-pdf-grupal/<int:asignatura_id>/', views.exportar_pdf_grupal, name='exportar_pdf_grupal'),
+    path('exportar-excel-grupal/<int:asignatura_id>/', views.exportar_excel_grupal, name='exportar_excel_grupal'),
+    path('asignatura/crear/', CrearAsignaturaView.as_view(), name='crear_asignatura'),
+    path('calificacion/crear/', CrearCalificacionView.as_view(), name='crear_calificacion'),
+    path('informes-rendimiento/', views.informes_rendimiento, name='informes_rendimiento'), 
+    path('editar-calificacion/<int:pk>/', views.editar_calificacion, name='editar_calificacion'),
 ]
 

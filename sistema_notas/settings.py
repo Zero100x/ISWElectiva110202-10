@@ -76,11 +76,12 @@ DATABASES = {
 }
 
 # Configuración de caché para optimizar consultas
+# Eliminar duplicado de CACHES
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         'LOCATION': 'unique-snowflake',
-        'TIMEOUT': 300,  # 5 minutos
+        'TIMEOUT': 300,
         'OPTIONS': {
             'MAX_ENTRIES': 1000
         }
