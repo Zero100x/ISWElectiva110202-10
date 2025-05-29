@@ -187,7 +187,7 @@ def calificaciones_estudiante(request):
         periodo_actual = request.GET.get('periodo')
         if periodo_actual:
             calificaciones = calificaciones.filter(periodo__id=periodo_actual)
-        return render(request, 'academico/calificaciones_estudiante.html', {
+        return render(request, 'academico/calificaciones/calificaciones_estudiante.html', {
             'calificaciones': calificaciones,
             'periodos': periodos,
             'periodo_actual': periodo_actual
@@ -224,13 +224,13 @@ def editar_calificacion(request, calificacion_id):
 class CrearAsignaturaView(CreateView):
     model = Asignatura
     form_class = AsignaturaForm
-    template_name = 'academico/crear_asignatura.html'
+    template_name = 'academico/asignaturas/crear_asignatura.html'
     success_url = reverse_lazy('lista_calificaciones')
 
 class CrearCalificacionView(CreateView):
     model = Calificacion
     form_class = CalificacionForm
-    template_name = 'academico/crear_calificacion.html'
+    template_name = 'academico/calificaciones/crear_calificacion.html'
     success_url = reverse_lazy('lista_calificaciones')
 
     def form_valid(self, form):
@@ -244,7 +244,7 @@ def es_profesor(user):
 class CrearCalificacionView(CreateView):
     model = Calificacion
     form_class = CalificacionForm
-    template_name = 'academico/crear_calificacion.html'
+    template_name = 'academico/calificaciones/crear_calificacion.html'
     success_url = reverse_lazy('lista_calificaciones')
 
     def form_valid(self, form):
@@ -264,7 +264,7 @@ def editar_calificacion(request, pk):
             return redirect('lista_calificaciones')
     else:
         form = CalificacionForm(instance=calificacion)
-    return render(request, 'academico/editar_calificacion.html', {'form': form, 'calificacion': calificacion})
+    return render(request, 'academico/calificaciones/editar_calificacion.html', {'form': form, 'calificacion': calificacion})
 
 @login_required
 def previsualizar_informe_individual(request, estudiante_id, periodo):

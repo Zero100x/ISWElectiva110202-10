@@ -136,7 +136,7 @@ class CalificacionForm(forms.ModelForm):
         widgets = {
             'estudiante': forms.Select(attrs={
                 'class': 'border-gray-300 rounded p-2 w-full',
-                'disabled': 'disabled'  # Hacemos el estudiante no editable
+               
             }),
             'asignatura': forms.Select(attrs={
                 'class': 'border-gray-300 rounded p-2 w-full'

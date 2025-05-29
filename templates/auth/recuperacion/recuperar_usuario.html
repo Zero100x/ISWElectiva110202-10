@@ -1,9 +1,6 @@
-{% extends 'base/base_generic.html' %}
-
 {% block content %}
 <div class="password-recovery-container">
     <div class="recovery-card">
-        <div class="holographic-effect"></div>
         <div class="recovery-header">
             <div class="logo">
                 <span class="logo-icon"><i class="fas fa-key"></i></span>
@@ -14,7 +11,7 @@
         <div class="recovery-body">
             {% if messages %}
                 {% for message in messages %}
-                <div class="alert-message animate__animated animate__headShake">
+                <div class="alert-message">
                     <i class="fas fa-{{ message.tags }}"></i> {{ message }}
                 </div>
                 {% endfor %}
@@ -53,19 +50,16 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Optimizar manejo de eventos
     const form = document.querySelector('.recovery-form');
     const input = document.getElementById('id_username');
     const button = document.querySelector('.recovery-btn');
 
-    // Debounce para optimizar rendimiento
     let timeout;
     function debounce(func, wait) {
         clearTimeout(timeout);
         timeout = setTimeout(func, wait);
     }
 
-    // Optimizar validación de entrada
     input.addEventListener('input', () => {
         debounce(() => {
             const isValid = input.value.trim().length > 0;
@@ -74,7 +68,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 100);
     });
 
-    // Optimizar manejo del formulario
     form.addEventListener('submit', (e) => {
         requestAnimationFrame(() => {
             button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Buscando...';
@@ -85,41 +78,23 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
-    /* Optimizar transiciones */
-    .recovery-btn {
-        transition: opacity 0.2s ease-out;
-        transform: translateZ(0);
-    }
-
-    /* Reducir reflow */
-    .form-group {
-        contain: layout style;
-    }
-
-    /* Optimizar animaciones */
-    @media (prefers-reduced-motion: reduce) {
-        .holographic-effect {
-            animation: none;
-        }
-        .logo-icon {
-            animation: none;
-        }
-    }
-</style>
-
-<style>
-/* General Styles */
+/* Fondo que ocupa toda la pantalla */
 .password-recovery-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    padding: 2rem;
     background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+    z-index: 0;
 }
 
+/* Tarjeta al frente */
 .recovery-card {
-    background: rgba(30, 30, 30, 0.9);
+    background: rgba(30, 30, 30, 0.95);
     backdrop-filter: blur(10px);
     border-radius: 12px;
     padding: 2.5rem;
@@ -129,27 +104,10 @@ document.addEventListener('DOMContentLoaded', function() {
     border: 1px solid rgba(255, 255, 255, 0.1);
     position: relative;
     overflow: hidden;
-    animation: fadeIn 0.5s ease-out;
+    z-index: 1;
 }
 
-.holographic-effect {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, #e63946, transparent);
-    animation: hologram 3s linear infinite;
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    perspective: 1000px;
-}
-
-@keyframes hologram {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-}
-
+/* Header y logo */
 .recovery-header {
     text-align: center;
     margin-bottom: 2rem;
@@ -166,7 +124,6 @@ document.addEventListener('DOMContentLoaded', function() {
     font-size: 2.5rem;
     color: #e63946;
     margin-bottom: 1rem;
-    animation: float 6s ease-in-out infinite;
 }
 
 .recovery-header h2 {
@@ -186,10 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
     font-size: 0.9rem;
 }
 
-.recovery-body {
-    margin-bottom: 1.5rem;
-}
-
+/* Mensajes */
 .alert-message {
     background: rgba(230, 57, 70, 0.2);
     border: 1px solid #e63946;
@@ -198,14 +152,10 @@ document.addEventListener('DOMContentLoaded', function() {
     margin-bottom: 1.5rem;
     text-align: center;
     color: #ff6b6b;
-    animation: slideIn 0.3s ease-out;
     border-left: 4px solid #e63946;
 }
 
-.alert-message i {
-    margin-right: 0.5rem;
-}
-
+/* Formulario */
 .recovery-form {
     display: flex;
     flex-direction: column;
@@ -267,6 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
     width: 100%;
 }
 
+/* Botón */
 .recovery-btn {
     position: relative;
     background: linear-gradient(45deg, #e63946, #d62839);
@@ -278,12 +229,12 @@ document.addEventListener('DOMContentLoaded', function() {
     font-weight: 600;
     cursor: pointer;
     overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     margin-top: 1.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+    transition: opacity 0.2s ease-out;
 }
 
 .recovery-btn:hover {
@@ -293,8 +244,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .recovery-btn:disabled {
     cursor: not-allowed;
-    transform: none !important;
-    box-shadow: none !important;
+    opacity: 0.6;
+    box-shadow: none;
+    transform: none;
 }
 
 .btn-arrow {
@@ -305,6 +257,7 @@ document.addEventListener('DOMContentLoaded', function() {
     transform: translateX(5px);
 }
 
+/* Enlaces */
 .recovery-links {
     display: flex;
     justify-content: center;
@@ -325,6 +278,7 @@ document.addEventListener('DOMContentLoaded', function() {
     color: #e63946;
 }
 
+/* Footer */
 .recovery-footer {
     text-align: center;
     color: #666;
@@ -338,78 +292,23 @@ document.addEventListener('DOMContentLoaded', function() {
     margin-right: 0.3rem;
 }
 
-@keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes slideIn {
-    from {
-        transform: translateX(-20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
 /* Responsive */
 @media (max-width: 600px) {
     .recovery-card {
         padding: 1.5rem;
     }
-
     .logo-icon {
         font-size: 2rem;
     }
-
     .recovery-header h2 {
         font-size: 1.5rem;
     }
-
     .recovery-header h2 span {
         font-size: 1.2rem;
     }
 }
-
-/* Optimización de carga de iconos */
-.fas {
-    font-display: swap;
-    will-change: transform;
-}
-
-/* Precargar recursos críticos */
-@media (prefers-reduced-motion: no-preference) {
-    .logo-icon {
-        content-visibility: auto;
-    }
-}
-
-/* Optimizar rendimiento de efectos */
-.recovery-card {
-    transform: translateZ(0);
-    will-change: transform;
-    contain: layout style paint;
-}
 </style>
 
-<!-- Agregar preload para recursos críticos -->
+<!-- Font Awesome preload -->
 <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style">
 {% endblock %}
