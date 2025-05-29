@@ -1,0 +1,47 @@
+<nav class="bg-academic-secondary shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <!-- Logo/Marca del sistema -->
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <span class="text-white font-bold text-xl">📊 Sistema de Notas</span>
+                </div>
+            </div>
+            
+            <!-- Controles de usuario -->
+            <div class="flex items-center">
+                {% if user.is_authenticated %}
+                <div class="relative flex items-center space-x-4">
+                    <!-- Avatar y nombre de usuario -->
+                    <div class="flex items-center space-x-3 bg-gray-800 rounded-full px-4 py-2">
+                        <div class="w-8 h-8 rounded-full bg-academic-primary flex items-center justify-center text-white font-bold">
+                            {{ user.username|make_list|first|upper }}
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-white font-medium">{{ user.username }}</span>
+                            <span class="text-gray-400 text-xs">{{ user.get_rol_display }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Botón de configuración -->
+                    <button id="configBtn" type="button" class="px-3 py-1 rounded-md text-sm font-medium text-white bg-gray-700 hover:bg-gray-600 transition duration-300 ease-in-out transform hover:scale-105">
+                        <i class="fas fa-cog hover:animate-spin"></i>
+                    </button>
+                    <div id="configMenu" class="hidden absolute right-0 top-full mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+                        <div class="py-1">
+                            <a href="{% url 'configurar_seguridad' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-shield-alt mr-2"></i>Configuración de seguridad
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Botón de cierre de sesión -->
+                    <a href="{% url 'logout' %}" class="px-3 py-1 rounded-md text-sm font-medium text-white bg-academic-primary hover:bg-red-700 transition duration-300 ease-in-out transform hover:scale-105">
+                        Cerrar sesión
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>

@@ -23,5 +23,6 @@ urlpatterns = [
     path('calificacion/crear/', CrearCalificacionView.as_view(), name='crear_calificacion'),
     path('informes-rendimiento/', views.informes_rendimiento, name='informes_rendimiento'), 
     path('editar-calificacion/<int:pk>/', views.editar_calificacion, name='editar_calificacion'),
+    path('previsualizar-informe-individual/<int:estudiante_id>/<int:periodo>/', views.previsualizar_informe_individual, name='previsualizar_informe_individual'),
 ]
 

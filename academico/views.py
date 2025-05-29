@@ -33,7 +33,7 @@ def login_view(request):
                 return redirect('configurar_seguridad')
             return redirect_to_dashboard(user)
         messages.error(request, "Credenciales inválidas o cuenta desactivada.")
-    return render(request, 'academico/login.html')
+    return render(request, 'registration/login.html')
 
 @login_required
 def logout_view(request):
@@ -95,14 +95,14 @@ def recuperar_contrasena_usuario(request):
             if user.intentos_recuperacion >= MAX_RECOVERY_ATTEMPTS and user.ultimo_intento:
                 if timezone.now() < user.ultimo_intento + timedelta(minutes=RECOVERY_TIMEOUT_MINUTES):
                     messages.error(request, "Has superado el número de intentos. Intenta nuevamente en 30 minutos.")
-                    return render(request, "academico/recuperar_usuario.html", {"form": form})
+                    return render(request, "auth/recuperacion/recuperar_usuario.html", {"form": form})
                 user.intentos_recuperacion = 0
                 user.save()
             request.session["recuperar_user"] = user.username
             return redirect("recuperar_contrasena_pregunta")
         except User.DoesNotExist:
             messages.error(request, "Usuario no encontrado.")
-    return render(request, "academico/recuperar_usuario.html", {"form": form})
+    return render(request, "auth/recuperacion/recuperar_usuario.html", {"form": form})
 
 def recuperar_contrasena_pregunta(request):
     username = request.session.get("recuperar_user")
@@ -123,7 +123,7 @@ def recuperar_contrasena_pregunta(request):
         if user.intentos_recuperacion >= MAX_RECOVERY_ATTEMPTS:
             messages.error(request, f"Has superado el número de intentos. Intenta nuevamente en {RECOVERY_TIMEOUT_MINUTES} minutos.")
             return redirect("recuperar_contrasena_usuario")
-    return render(request, "academico/recuperar_pregunta.html", {"form": form, "pregunta": pregunta, "username": username})
+    return render(request, "auth/recuperacion/recuperar_pregunta.html", {"form": form, "pregunta": pregunta, "username": username})
 
 def recuperar_contrasena_reset(request):
     username = request.session.get("recuperar_user")
@@ -147,7 +147,7 @@ def recuperar_contrasena_reset(request):
             request.session.pop("recuperar_user", None)
             request.session.pop("recuperacion_permitida", None)
             return redirect("login")
-    return render(request, "academico/recuperar_reset.html", {"form": form, "username": username})
+    return render(request, "auth/recuperacion/recuperar_reset.html", {"form": form, "username": username})
 
 # Academic Views
 @login_required
@@ -173,7 +173,7 @@ def lista_calificaciones(request):
         'periodos': Periodo.objects.all(),
         'mensaje': "No hay calificaciones registradas." if not calificaciones.exists() else None
     }
-    return render(request, 'academico/lista_calificaciones.html', context)
+    return render(request, 'academico/calificaciones/lista_calificaciones.html', context)
 
 @login_required
 def calificaciones_estudiante(request):
@@ -267,19 +267,57 @@ def editar_calificacion(request, pk):
     return render(request, 'academico/editar_calificacion.html', {'form': form, 'calificacion': calificacion})
 
 @login_required
+def previsualizar_informe_individual(request, estudiante_id, periodo):
+    if request.user.rol != 'admin':
+        messages.error(request, "Acceso restringido a administradores.")
+        return redirect('login')
+    estudiante = get_object_or_404(Estudiante, id=estudiante_id)
+    calificaciones = Calificacion.objects.filter(estudiante=estudiante, periodo_id=periodo)
+    promedio_general = calificaciones.aggregate(Avg('nota'))['nota__avg'] or 0
+    context = {
+        'estudiante_seleccionado': estudiante,
+        'calificaciones_estudiante': calificaciones,
+        'promedio_general': round(promedio_general, 2),
+        'periodo': get_object_or_404(Periodo, id=periodo),
+    }
+    return render(request, 'academico/informes/previsualizacion_individual.html', context)
+
+@login_required
 def informes_rendimiento(request):
     if request.user.rol != 'admin':
         messages.error(request, "Acceso restringido a administradores.")
         return redirect('login')
     periodos = Periodo.objects.all()
     asignaturas = Asignatura.objects.all()
+    estudiantes = Estudiante.objects.all()
     periodo_seleccionado = request.GET.get('periodo')
-    asignatura_seleccionada = request.GET.get('asignatura')
+    asignatura_seleccionada_id = request.GET.get('asignatura')
+    estudiante_seleccionado_id = request.GET.get('estudiante')
     calificaciones = Calificacion.objects.all()
+    calificaciones_estudiante = None
+    calificaciones_grupo = None
+    informe_individual = False
+    informe_grupal = False
+    estudiante_seleccionado = None
+    asignatura_seleccionada = None
     if periodo_seleccionado:
         calificaciones = calificaciones.filter(periodo_id=periodo_seleccionado)
-    if asignatura_seleccionada:
-        calificaciones = calificaciones.filter(asignatura_id=asignatura_seleccionada)
+    if estudiante_seleccionado_id:
+        try:
+            estudiante_seleccionado = Estudiante.objects.get(id=estudiante_seleccionado_id)
+            calificaciones_estudiante = calificaciones.filter(estudiante_id=estudiante_seleccionado_id)
+            informe_individual = True
+        except Estudiante.DoesNotExist:
+            calificaciones_estudiante = None
+            informe_individual = False
+    if asignatura_seleccionada_id:
+        try:
+            asignatura_seleccionada = Asignatura.objects.get(id=asignatura_seleccionada_id)
+            calificaciones_grupo = calificaciones.filter(asignatura_id=asignatura_seleccionada_id)
+            informe_grupal = True
+        except Asignatura.DoesNotExist:
+            calificaciones_grupo = None
+            informe_grupal = False
     total_estudiantes = calificaciones.values('estudiante').distinct().count()
     promedio_general = calificaciones.aggregate(Avg('nota'))['nota__avg'] or 0
     aprobados = calificaciones.filter(nota__gte=3.0).count()
@@ -287,18 +325,20 @@ def informes_rendimiento(request):
     context = {
         'periodos': periodos,
         'asignaturas': asignaturas,
-        'calificaciones': calificaciones,
+        'estudiantes': estudiantes,
+        'periodo_seleccionado': periodo_seleccionado,
+        'asignatura_seleccionada': asignatura_seleccionada,
+        'estudiante_seleccionado': estudiante_seleccionado,
+        'calificaciones_estudiante': calificaciones_estudiante,
+        'calificaciones_grupo': calificaciones_grupo,
+        'informe_individual': informe_individual and calificaciones_estudiante is not None,
+        'informe_grupal': informe_grupal and calificaciones_grupo is not None,
         'total_estudiantes': total_estudiantes,
         'promedio_general': round(promedio_general, 2),
         'aprobados': aprobados,
         'reprobados': reprobados,
-        'periodo_seleccionado': periodo_seleccionado,
-        'asignatura_seleccionada': asignatura_seleccionada,
-        'estudiantes': Estudiante.objects.all(),  # Añadir esta línea
-        'informe_individual': bool(request.GET.get('estudiante')),  # Añadir esta línea
-        'informe_grupal': bool(request.GET.get('asignatura')),  # Añadir esta línea
     }
-    return render(request, 'academico/informes_rendimiento.html', context)
+    return render(request, 'academico/informes/informes_rendimiento.html', context)
 
 @login_required
 def exportar_pdf_individual(request, estudiante_id):

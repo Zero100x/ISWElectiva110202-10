@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    {% include 'base/components/head.html' %}
+</head>
+<body class="h-full bg-academic-light font-sans antialiased">
+    {% include 'base/components/navbar.html' %}
+
+    <!-- Contenido principal -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'base/components/footer.html' %}
+</body>
+</html>

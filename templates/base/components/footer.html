@@ -1,0 +1,35 @@
+<footer class="bg-academic-secondary text-white py-4 mt-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm">
+        <p>© {% now "Y" %} Sistema de Notas Académicas - Ingeniería de Software</p>
+    </div>
+</footer>
+
+<script>
+    // Manejo del menú desplegable de configuración
+    const configBtn = document.getElementById('configBtn');
+    const configMenu = document.getElementById('configMenu');
+
+    // Verificar el rol del usuario y mostrar el correspondiente
+    {% if user.is_authenticated %}
+        {% if user.groups.all.0.name == 'Estudiante' %}
+            document.getElementById('userRole').textContent = 'Estudiante';
+        {% elif user.groups.all.0.name == 'Profesor' %}
+            document.getElementById('userRole').textContent = 'Profesor';
+        {% elif user.is_superuser %}
+            document.getElementById('userRole').textContent = 'Administrador';
+        {% else %}
+            document.getElementById('userRole').textContent = 'Usuario Regular';
+        {% endif %}
+    {% endif %}
+
+    configBtn.addEventListener('click', () => {
+        configMenu.classList.toggle('hidden');
+    });
+
+    // Cerrar el menú al hacer clic fuera
+    document.addEventListener('click', (event) => {
+        if (!configBtn.contains(event.target) && !configMenu.contains(event.target)) {
+            configMenu.classList.add('hidden');
+        }
+    });
+</script>

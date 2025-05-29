@@ -1,0 +1,56 @@
+{% extends 'base/base_generic.html' %}
+
+{% block content %}
+<div class="container" style="max-width: 600px; margin: 30px auto;">
+    <!-- Encabezado -->
+    <h1 style="text-align: center; color: #343a40; margin-bottom: 30px;">Sistema de Notas</h1>
+    <h2 style="color: #495057; margin-bottom: 25px;">Agregar Calificación</h2>
+
+    <!-- Formulario -->
+    <form method="post" style="margin-bottom: 40px;">
+        {% csrf_token %}
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Estudiante</label>
+            {{ form.estudiante }}
+        </div>
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Asignatura</label>
+            {{ form.asignatura }}
+        </div>
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Periodo</label>
+            {{ form.periodo }}
+        </div>
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Nota</label>
+            {{ form.nota }}
+        </div>
+
+        <!-- Botones alineados -->
+        <div style="display: flex; justify-content: space-between; border-top: 1px solid #eee; padding-top: 20px;">
+            <a href="{% url 'lista_calificaciones' %}" style="
+                background-color: #f8f9fa;
+                color: #495057;
+                border: 1px solid #dee2e6;
+                padding: 10px 20px;
+                border-radius: 4px;
+                text-decoration: none;
+                transition: all 0.3s;
+            ">
+                Volver
+            </a>
+            <button type="submit" style="
+                background-color: #28a745;
+                color: white;
+                padding: 10px 20px;
+                border-radius: 4px;
+                border: none;
+                transition: all 0.3s;
+            ">
+                Guardar
+            </button>
+        </div>
+    </form>
+
+    
+{% endblock %}
