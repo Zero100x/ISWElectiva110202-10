@@ -54,13 +54,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'sistema_notas.wsgi.application'
 
 # Base de datos
-# Configuración de caché
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',
-    }
-}
+
 
 # Optimización de base de datos
 DATABASES = {
@@ -169,3 +163,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
+
+def test_settings_configuration(settings):
+    assert settings.AUTH_USER_MODEL == 'academico.User'
+    assert settings.LANGUAGE_CODE == 'es-es'
+    assert settings.TIME_ZONE == 'America/Bogota'
+    assert settings.SESSION_COOKIE_AGE == 1800
+
+

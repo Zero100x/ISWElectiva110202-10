@@ -1,0 +1,415 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div class="password-recovery-container">
+    <div class="recovery-card">
+        <div class="holographic-effect"></div>
+        <div class="recovery-header">
+            <div class="logo">
+                <span class="logo-icon"><i class="fas fa-key"></i></span>
+                <h2>Recuperar <span>Contraseña</span></h2>
+            </div>
+            <p class="subtitle">Ingresa tu nombre de perfil para buscar tu cuenta</p>
+        </div>
+        <div class="recovery-body">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert-message animate__animated animate__headShake">
+                    <i class="fas fa-{{ message.tags }}"></i> {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+            <form method="post" class="recovery-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <i class="fas fa-user input-icon"></i>
+                    <input type="text"
+                           name="username"
+                           id="id_username"
+                           required
+                           autofocus
+                           pattern="[A-Za-z0-9_]+"
+                           title="El nombre de perfil solo puede contener letras, números y guiones bajos">
+                    <label for="id_username">Nombre de Perfil</label>
+                    <div class="underline"></div>
+                </div>
+                <button type="submit" class="recovery-btn">
+                    <span>Buscar Cuenta</span>
+                    <div class="btn-effect"></div>
+                    <i class="fas fa-search btn-arrow"></i>
+                </button>
+            </form>
+            <div class="recovery-links">
+                <a href="{% url 'login' %}" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Volver al inicio de sesión
+                </a>
+            </div>
+        </div>
+        <div class="recovery-footer">
+            <p><i class="fas fa-lock"></i> Tus datos están protegidos</p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Optimizar manejo de eventos
+    const form = document.querySelector('.recovery-form');
+    const input = document.getElementById('id_username');
+    const button = document.querySelector('.recovery-btn');
+
+    // Debounce para optimizar rendimiento
+    let timeout;
+    function debounce(func, wait) {
+        clearTimeout(timeout);
+        timeout = setTimeout(func, wait);
+    }
+
+    // Optimizar validación de entrada
+    input.addEventListener('input', () => {
+        debounce(() => {
+            const isValid = input.value.trim().length > 0;
+            button.disabled = !isValid;
+            button.style.opacity = isValid ? '1' : '0.6';
+        }, 100);
+    });
+
+    // Optimizar manejo del formulario
+    form.addEventListener('submit', (e) => {
+        requestAnimationFrame(() => {
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Buscando...';
+            button.disabled = true;
+        });
+    });
+});
+</script>
+
+<style>
+    /* Optimizar transiciones */
+    .recovery-btn {
+        transition: opacity 0.2s ease-out;
+        transform: translateZ(0);
+    }
+
+    /* Reducir reflow */
+    .form-group {
+        contain: layout style;
+    }
+
+    /* Optimizar animaciones */
+    @media (prefers-reduced-motion: reduce) {
+        .holographic-effect {
+            animation: none;
+        }
+        .logo-icon {
+            animation: none;
+        }
+    }
+</style>
+
+<style>
+/* General Styles */
+.password-recovery-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 2rem;
+    background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+}
+
+.recovery-card {
+    background: rgba(30, 30, 30, 0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.holographic-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #e63946, transparent);
+    animation: hologram 3s linear infinite;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+@keyframes hologram {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.recovery-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.recovery-header .logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.logo-icon {
+    font-size: 2.5rem;
+    color: #e63946;
+    margin-bottom: 1rem;
+    animation: float 6s ease-in-out infinite;
+}
+
+.recovery-header h2 {
+    font-size: 1.8rem;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.recovery-header h2 span {
+    color: #e63946;
+    display: block;
+    font-size: 1.4rem;
+}
+
+.subtitle {
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+.recovery-body {
+    margin-bottom: 1.5rem;
+}
+
+.alert-message {
+    background: rgba(230, 57, 70, 0.2);
+    border: 1px solid #e63946;
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #ff6b6b;
+    animation: slideIn 0.3s ease-out;
+    border-left: 4px solid #e63946;
+}
+
+.alert-message i {
+    margin-right: 0.5rem;
+}
+
+.recovery-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #777;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 1rem 1rem 1rem 2.5rem;
+    font-size: 1rem;
+    color: white;
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    border-bottom: 1px solid #555;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.form-group label {
+    position: absolute;
+    top: 1rem;
+    left: 2.5rem;
+    color: #999;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus ~ label,
+.form-group input:valid ~ label {
+    top: -0.8rem;
+    left: 0;
+    font-size: 0.8rem;
+    color: #e63946;
+}
+
+.underline {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(to right, #e63946, #ff6b6b);
+    transition: width 0.4s ease;
+}
+
+.form-group input:focus ~ .underline {
+    width: 100%;
+}
+
+.recovery-btn {
+    position: relative;
+    background: linear-gradient(45deg, #e63946, #d62839);
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.recovery-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(230, 57, 70, 0.3);
+}
+
+.recovery-btn:disabled {
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.btn-arrow {
+    transition: transform 0.3s ease;
+}
+
+.recovery-btn:hover .btn-arrow {
+    transform: translateX(5px);
+}
+
+.recovery-links {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+
+.back-link {
+    color: #aaa;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.back-link:hover {
+    color: #e63946;
+}
+
+.recovery-footer {
+    text-align: center;
+    color: #666;
+    font-size: 0.8rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 1.5rem;
+}
+
+.recovery-footer i {
+    color: #e63946;
+    margin-right: 0.3rem;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .recovery-card {
+        padding: 1.5rem;
+    }
+
+    .logo-icon {
+        font-size: 2rem;
+    }
+
+    .recovery-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .recovery-header h2 span {
+        font-size: 1.2rem;
+    }
+}
+
+/* Optimización de carga de iconos */
+.fas {
+    font-display: swap;
+    will-change: transform;
+}
+
+/* Precargar recursos críticos */
+@media (prefers-reduced-motion: no-preference) {
+    .logo-icon {
+        content-visibility: auto;
+    }
+}
+
+/* Optimizar rendimiento de efectos */
+.recovery-card {
+    transform: translateZ(0);
+    will-change: transform;
+    contain: layout style paint;
+}
+</style>
+
+<!-- Agregar preload para recursos críticos -->
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style">
+{% endblock %}

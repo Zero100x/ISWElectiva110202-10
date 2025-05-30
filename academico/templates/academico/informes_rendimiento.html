@@ -1,0 +1,169 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold text-academic-secondary mb-6">📊 Informes de Rendimiento Académico</h2>
+
+    <!-- Acordeón de informes -->
+    <div class="space-y-4">
+        <!-- Informe Individual -->
+        <div class="border rounded-lg">
+            <button class="w-full p-4 text-left bg-gray-50 hover:bg-gray-100 transition flex justify-between items-center" 
+                    onclick="toggleAccordion('individual')" 
+                    id="individual-header">
+                <span class="font-semibold">📋 Informe Individual</span>
+                <i class="fas fa-chevron-down transition-transform" id="individual-icon"></i>
+            </button>
+            <div class="hidden p-4" id="individual-content">
+                <form method="get" class="space-y-4">
+                    <div>
+                        <label class="block mb-1 font-semibold text-sm text-gray-700">Estudiante:</label>
+                        <select name="estudiante" class="border-gray-300 rounded p-2 w-full">
+                            <option value="">Seleccione un estudiante</option>
+                            {% for estudiante in estudiantes %}
+                                <option value="{{ estudiante.id }}" {% if request.GET.estudiante == estudiante.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ estudiante.user.get_full_name|default:estudiante.user.username }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block mb-1 font-semibold text-sm text-gray-700">Período:</label>
+                        <select name="periodo" class="border-gray-300 rounded p-2 w-full">
+                            <option value="">Todos los períodos</option>
+                            {% for periodo in periodos %}
+                                <option value="{{ periodo.id }}" {% if request.GET.periodo == periodo.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ periodo.nombre }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="bg-academic-primary text-white px-4 py-2 rounded hover:bg-academic-secondary transition">
+                        Generar Informe Individual
+                    </button>
+                </form>
+
+                {% if informe_individual %}
+                    <div class="mt-6">
+                        <h3 class="text-xl font-semibold mb-4">Resultados del Informe Individual</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="mb-2"><strong>Estudiante:</strong> {{ estudiante_seleccionado.user.get_full_name|default:estudiante_seleccionado.user.username }}</p>
+                            <p class="mb-4"><strong>Promedio General:</strong> {{ promedio_general|floatformat:2 }}</p>
+                            
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left">Asignatura</th>
+                                            <th class="px-4 py-2 text-left">Período</th>
+                                            <th class="px-4 py-2 text-left">Calificación</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for calificacion in calificaciones_estudiante %}
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="px-4 py-2">{{ calificacion.asignatura.nombre }}</td>
+                                                <td class="px-4 py-2">{{ calificacion.periodo.nombre }}</td>
+                                                <td class="px-4 py-2">{{ calificacion.nota|floatformat:2 }}</td>
+                                            </tr>
+                                        {% empty %}
+                                            <tr>
+                                                <td colspan="3" class="px-4 py-4 text-center text-gray-500">No hay calificaciones registradas</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Informe Grupal -->
+        <div class="border rounded-lg">
+            <button class="w-full p-4 text-left bg-gray-50 hover:bg-gray-100 transition flex justify-between items-center"
+                    onclick="toggleAccordion('grupal')"
+                    id="grupal-header">
+                <span class="font-semibold">📊 Informe Grupal</span>
+                <i class="fas fa-chevron-down transition-transform" id="grupal-icon"></i>
+            </button>
+            <div class="hidden p-4" id="grupal-content">
+                <form method="get" class="space-y-4">
+                    <div>
+                        <label class="block mb-1 font-semibold text-sm text-gray-700">Asignatura:</label>
+                        <select name="asignatura" class="border-gray-300 rounded p-2 w-full">
+                            <option value="">Seleccione una asignatura</option>
+                            {% for asignatura in asignaturas %}
+                                <option value="{{ asignatura.id }}" {% if request.GET.asignatura == asignatura.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ asignatura.nombre }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block mb-1 font-semibold text-sm text-gray-700">Período:</label>
+                        <select name="periodo_grupal" class="border-gray-300 rounded p-2 w-full">
+                            <option value="">Todos los períodos</option>
+                            {% for periodo in periodos %}
+                                <option value="{{ periodo.id }}" {% if request.GET.periodo_grupal == periodo.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ periodo.nombre }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="bg-academic-primary text-white px-4 py-2 rounded hover:bg-academic-secondary transition">
+                        Generar Informe Grupal
+                    </button>
+                </form>
+
+                {% if informe_grupal %}
+                    <div class="mt-6">
+                        <h3 class="text-xl font-semibold mb-4">Resultados del Informe Grupal</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="mb-2"><strong>Asignatura:</strong> {{ asignatura_seleccionada.nombre }}</p>
+                            <p class="mb-4"><strong>Promedio General del Grupo:</strong> {{ promedio_grupal|floatformat:2 }}</p>
+                            
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left">Estudiante</th>
+                                            <th class="px-4 py-2 text-left">Período</th>
+                                            <th class="px-4 py-2 text-left">Calificación</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for calificacion in calificaciones_grupo %}
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="px-4 py-2">{{ calificacion.estudiante.user.get_full_name|default:calificacion.estudiante.user.username }}</td>
+                                                <td class="px-4 py-2">{{ calificacion.periodo.nombre }}</td>
+                                                <td class="px-4 py-2">{{ calificacion.nota|floatformat:2 }}</td>
+                                            </tr>
+                                        {% empty %}
+                                            <tr>
+                                                <td colspan="3" class="px-4 py-4 text-center text-gray-500">No hay calificaciones registradas para este grupo</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleAccordion(id) {
+    const content = document.getElementById(`${id}-content`);
+    const icon = document.getElementById(`${id}-icon`);
+    
+    content.classList.toggle('hidden');
+    icon.classList.toggle('transform');
+    icon.classList.toggle('rotate-180');
+}
+</script>
+{% endblock %}
