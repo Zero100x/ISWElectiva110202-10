@@ -1,0 +1,418 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div class="password-recovery-container">
+    <div class="recovery-card">
+        <!-- Efecto holográfico -->
+        <div class="holographic-effect"></div>
+
+        <!-- Encabezado -->
+        <div class="recovery-header">
+            <div class="logo">
+                <span class="logo-icon"><i class="fas fa-lock-open"></i></span>
+                <h2>Restablecer <span>Contraseña</span></h2>
+            </div>
+            <p class="subtitle">Establece tu nueva contraseña segura</p>
+        </div>
+
+        <!-- Cuerpo del formulario -->
+        <div class="recovery-body">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert-message animate__animated animate__headShake">
+                    <i class="fas fa-{{ message.tags }}"></i> {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" class="recovery-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <i class="fas fa-key input-icon"></i>
+                    <input type="password" name="nueva_contrasena" id="id_nueva_contrasena" required>
+                    <label for="id_nueva_contrasena">Nueva contraseña</label>
+                    <div class="underline"></div>
+                    <div class="password-strength"></div>
+                </div>
+
+                <div class="form-group">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" name="confirmar_contrasena" id="id_confirmar_contrasena" required>
+                    <label for="id_confirmar_contrasena">Confirmar contraseña</label>
+                    <div class="underline"></div>
+                </div>
+
+                <div id="password-match-message" class="password-feedback"></div>
+
+                <div class="password-requirements">
+                    <p><i class="fas fa-info-circle"></i> Requisitos de la contraseña:</p>
+                    <ul>
+                        <li id="length">Al menos 6 caracteres</li>
+                        <li id="lowercase">Una letra minúscula</li>
+                        <li id="uppercase">Una letra mayúscula</li>
+                        <li id="number">Un número</li>
+                    </ul>
+                </div>
+
+                <button type="submit" class="recovery-btn" id="submitBtn" disabled>
+                    <span>Cambiar Contraseña</span>
+                    <div class="btn-effect"></div>
+                    <i class="fas fa-check btn-arrow"></i>
+                </button>
+            </form>
+
+            <div class="recovery-links">
+                <a href="{% url 'login' %}" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Volver al inicio de sesión
+                </a>
+            </div>
+        </div>
+
+        <div class="recovery-footer">
+            <p><i class="fas fa-lock"></i> Tus datos están protegidos</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .password-recovery-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 2rem;
+        background: #ffffff; /* Fondo blanco */
+    }
+
+    .recovery-card {
+        background: rgba(30, 30, 30, 0.9); /* Fondo negro */
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 2.5rem;
+        width: 100%;
+        max-width: 500px;
+        box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .holographic-effect {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.1),
+            transparent
+        );
+        animation: hologram 5s infinite;
+    }
+
+    .recovery-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .logo {
+        margin-bottom: 1rem;
+    }
+
+    .logo-icon {
+        font-size: 2.5rem;
+        color: #e63946;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    .logo h2 {
+        color: #fff; /* Texto blanco */
+        margin: 1rem 0;
+    }
+
+    .logo h2 span {
+        color: #e63946;
+    }
+
+    .subtitle {
+        color: #aaa; /* Texto gris */
+        font-size: 0.9rem;
+    }
+
+    .form-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #aaa;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 0.75rem 0 0.75rem 2rem;
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid #444;
+        color: #fff; /* Texto blanco */
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-group label {
+        position: absolute;
+        left: 2rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #aaa;
+        transition: all 0.3s ease;
+        pointer-events: none;
+    }
+
+    .form-group input:focus ~ label,
+    .form-group input:valid ~ label {
+        top: -0.5rem;
+        font-size: 0.8rem;
+        color: #e63946;
+    }
+
+    .underline {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(to right, #e63946, #ff6b6b);
+        transition: width 0.4s ease;
+    }
+
+    .form-group input:focus ~ .underline {
+        width: 100%;
+    }
+
+    .password-requirements {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 1.5rem 0;
+    }
+
+    .password-requirements p {
+        color: #aaa; /* Texto gris */
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .password-requirements ul {
+        list-style: none;
+        padding-left: 1.5rem;
+        margin: 0;
+    }
+
+    .password-requirements li {
+        color: #dc3545;
+        font-size: 0.85rem;
+        margin: 0.3rem 0;
+        position: relative;
+    }
+
+    .password-requirements li::before {
+        content: '×';
+        position: absolute;
+        left: -1.2rem;
+        color: inherit;
+    }
+
+    .password-requirements li.valid {
+        color: #28a745;
+    }
+
+    .password-requirements li.valid::before {
+        content: '✓';
+    }
+
+    .recovery-btn {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(45deg, #e63946, #ff6b6b);
+        border: none;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .recovery-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(230, 57, 70, 0.3);
+    }
+
+    .btn-effect {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, #ff6b6b, #e63946);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .recovery-btn:hover .btn-effect {
+        opacity: 1;
+    }
+
+    .recovery-links {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+
+    .back-link {
+        color: #aaa; /* Texto gris */
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.3s ease;
+    }
+
+    .back-link:hover {
+        color: #e63946;
+    }
+
+    .recovery-footer {
+        text-align: center;
+        margin-top: 2rem;
+        color: #777;
+        font-size: 0.9rem;
+    }
+
+    .password-feedback {
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        padding: 0.5rem;
+        border-radius: 4px;
+    }
+
+    .password-feedback.mismatch {
+        background-color: rgba(30, 30, 30, 0.9); /* Fondo negro */
+        color: #dc3545; /* Texto rojo */
+    }
+
+    .password-feedback.match {
+        background-color: rgba(30, 30, 30, 0.9); /* Fondo negro */
+        color: #28a745; /* Texto verde */
+    }
+
+    @keyframes hologram {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    @media (max-width: 600px) {
+        .password-recovery-container {
+            padding: 1rem;
+        }
+
+        .recovery-card {
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.getElementById('id_nueva_contrasena');
+    const confirmInput = document.getElementById('id_confirmar_contrasena');
+    const submitBtn = document.getElementById('submitBtn');
+    const feedback = document.getElementById('password-match-message');
+    const requirements = {
+        length: document.getElementById('length'),
+        lowercase: document.getElementById('lowercase'),
+        uppercase: document.getElementById('uppercase'),
+        number: document.getElementById('number')
+    };
+    const strengthBar = document.querySelector('.password-strength');
+
+    function checkPassword(password) {
+        const checks = {
+            length: password.length >= 6,
+            lowercase: /[a-z]/.test(password),
+            uppercase: /[A-Z]/.test(password),
+            number: /[0-9]/.test(password)
+        };
+
+        let strength = 0;
+        let allValid = true;
+        Object.keys(checks).forEach(check => {
+            if (checks[check]) {
+                requirements[check].classList.add('valid');
+                strength += 25;
+            } else {
+                requirements[check].classList.remove('valid');
+                allValid = false;
+            }
+        });
+
+        strengthBar.style.setProperty('--strength', strength + '%');
+        strengthBar.style.setProperty('--color',
+            strength < 50 ? '#dc3545' :
+            strength < 75 ? '#ffc107' : '#28a745'
+        );
+
+        return allValid;
+    }
+
+    function checkPasswordsMatch() {
+        const value1 = passwordInput.value;
+        const value2 = confirmInput.value;
+
+        if (value1 === '' || value2 === '') {
+            feedback.textContent = '';
+            feedback.className = 'password-feedback';
+            submitBtn.disabled = true;
+            return;
+        }
+
+        if (value1 === value2 && checkPassword(value1)) {
+            feedback.textContent = '¡Las contraseñas coinciden!';
+            feedback.className = 'password-feedback match';
+            submitBtn.disabled = false;
+        } else {
+            feedback.textContent = 'Las contraseñas no coinciden';
+            feedback.className = 'password-feedback mismatch';
+            submitBtn.disabled = true;
+        }
+    }
+
+    passwordInput.addEventListener('input', () => {
+        checkPassword(passwordInput.value);
+        checkPasswordsMatch();
+    });
+
+    confirmInput.addEventListener('input', checkPasswordsMatch);
+
+    const form = document.querySelector('.recovery-form');
+    const button = document.querySelector('.recovery-btn');
+
+    if (form && button) {
+        form.addEventListener('submit', function() {
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+            button.disabled = true;
+        });
+    }
+});
+</script>
+{% endblock %}
