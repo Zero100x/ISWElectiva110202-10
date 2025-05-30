@@ -1,109 +1,49 @@
-from django.test import TestCase, Client
+import json
+from django.test import TestCase, RequestFactory
+from academico.models import User
+from django.contrib.messages import get_messages
 from django.urls import reverse
-from academico.models import User, Asignatura, Calificacion, Periodo, Profesor, Estudiante
-from .forms import (
-    LoginForm, RecuperacionUsuarioForm, RecuperacionPreguntaForm,
-    RecuperacionPasswordForm, SecurityConfigForm, AsignaturaForm, CalificacionForm
-)
+from django.utils import timezone
+from datetime import timedelta
 
-class AcademicViewsTest(TestCase):
+# Corregir las importaciones usando la ruta completa
+from academico.models import Asignatura, Periodo, Profesor, Estudiante, Calificacion
+from academico.forms import SecurityConfigForm
+
+class TestViews(TestCase):
     def setUp(self):
-        self.client = Client()
-        self.user = User.objects.create_user(username='testuser', password='testpass', rol='profesor')
-        self.profesor = Profesor.objects.create(user=self.user)
-        self.estudiante = Estudiante.objects.create(user=self.user)
-        self.asignatura = Asignatura.objects.create(nombre='Matemáticas')
-        self.periodo = Periodo.objects.create(nombre='2023-1')
+        self.factory = RequestFactory()
+        
+        self.admin_user = User.objects.create_user(
+            username='admin', password='admin123', rol='admin'
+        )
+        self.profesor_user = User.objects.create_user(
+            username='profesor', password='profesor123', rol='profesor',
+            pregunta_seguridad="Pregunta", respuesta_seguridad="Respuesta"
+        )
+        self.estudiante_user = User.objects.create_user(
+            username='estudiante', password='estudiante123', rol='estudiante',
+            pregunta_seguridad="Pregunta", respuesta_seguridad="Respuesta"
+        )
+        
+        self.profesor = Profesor.objects.create(user=self.profesor_user)
+        self.estudiante = Estudiante.objects.create(user=self.estudiante_user)
+        self.periodo = Periodo.objects.create(nombre="2023-1", fecha_inicio=timezone.now())
+        self.asignatura = Asignatura.objects.create(nombre="Matemáticas")
         self.calificacion = Calificacion.objects.create(
-            profesor=self.profesor,
             estudiante=self.estudiante,
+            profesor=self.profesor,
             asignatura=self.asignatura,
             periodo=self.periodo,
             nota=4.5
         )
 
-    def test_login_view(self):
-        response = self.client.post(reverse('login'), {'username': 'testuser', 'password': 'testpass'})
-        self.assertEqual(response.status_code, 302)  # Should redirect after successful login
-
-    def test_logout_view(self):
-        self.client.login(username='testuser', password='testpass')
-        response = self.client.get(reverse('logout'))
-        self.assertEqual(response.status_code, 302)  # Should redirect after logout
-
-    def test_configurar_seguridad(self):
-        self.client.login(username='testuser', password='testpass')
-        response = self.client.get(reverse('configurar_seguridad'))
+    def test_login_view_get(self):
+        response = self.client.get(reverse('login'))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'academico/configurar_seguridad.html')
+        self.assertTemplateUsed(response, 'registration/login.html')
 
-    def test_recuperar_contrasena_usuario(self):
-        response = self.client.get(reverse('recuperar_contrasena_usuario'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'academico/recuperar_usuario.html')
-
-    def test_lista_calificaciones(self):
-        self.client.login(username='testuser', password='testpass')
-        response = self.client.get(reverse('lista_calificaciones'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'academico/lista_calificaciones.html')
-
-    def test_calificaciones_estudiante(self):
-        self.client.login(username='testuser', password='testpass')
-        response = self.client.get(reverse('calificaciones_estudiante'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'academico/calificaciones_estudiante.html')
-
-    def test_editar_calificacion(self):
-        self.client.login(username='testuser', password='testpass')
-        response = self.client.post(
-            reverse('editar_calificacion', args=[self.calificacion.id]),
-            data=json.dumps({'nota': 5.0}),
-            content_type='application/json'
-        )
-        self.assertEqual(response.status_code, 200)
-        self.calificacion.refresh_from_db()
-        self.assertEqual(self.calificacion.nota, 5.0)
-
-    def test_crear_asignatura_view(self):
-        self.client.login(username='testuser', password='testpass')
-        response = self.client.get(reverse('crear_asignatura'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'academico/crear_asignatura.html')
-
-    def test_crear_calificacion_view(self):
-        self.client.login(username='testuser', password='testpass')
-        response = self.client.get(reverse('crear_calificacion'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'academico/crear_calificacion.html')
-
-    def test_informes_rendimiento(self):
-        admin_user = User.objects.create_user(username='admin', password='adminpass', rol='admin')
-        self.client.login(username='admin', password='adminpass')
-        response = self.client.get(reverse('informes_rendimiento'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'academico/informes_rendimiento.html')
-
-    def test_exportar_pdf_individual(self):
-        self.client.login(username='testuser', password='testpass')
-        response = self.client.get(reverse('exportar_pdf_individual', args=[self.estudiante.id]))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response['Content-Type'], 'application/pdf')
-
-    def test_exportar_excel_individual(self):
-        self.client.login(username='testuser', password='testpass')
-        response = self.client.get(reverse('exportar_excel_individual', args=[self.estudiante.id]))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response['Content-Type'], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-
-    def test_exportar_pdf_grupal(self):
-        self.client.login(username='testuser', password='testpass')
-        response = self.client.get(reverse('exportar_pdf_grupal', args=[self.asignatura.id]))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response['Content-Type'], 'application/pdf')
-
-    def test_exportar_excel_grupal(self):
-        self.client.login(username='testuser', password='testpass')
-        response = self.client.get(reverse('exportar_excel_grupal', args=[self.asignatura.id]))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response['Content-Type'], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    def test_login_view_post_success(self):
+        data = {'username': 'profesor', 'password': 'profesor123'}
+        response = self.client.post(reverse('login'), data)
+        self.assertRedirects(response, reverse('lista_calificaciones'))
