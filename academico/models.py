@@ -86,13 +86,15 @@ class Calificacion(models.Model):
     asignatura = models.ForeignKey(Asignatura, on_delete=models.CASCADE)
     periodo = models.ForeignKey(Periodo, on_delete=models.CASCADE)
     tipo_evaluacion = models.CharField(max_length=50, default="Final")
+    nombre = models.CharField(
+        max_length=100, 
+        blank=False,  # Puedes cambiar a False si lo quieres requerido
+        verbose_name="Nombre/Descripción",
+        help_text="Nombre descriptivo de la calificación"
+    )
     nota = models.DecimalField(max_digits=4, decimal_places=2)
 
     def __str__(self):
-        return f"{self.estudiante} - {self.asignatura} - {self.periodo}: {self.nota}"
-
-# Signal to create a professor profile when a user with the role 'profesor' is created
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created and instance.rol == 'profesor':
-        Profesor.objects.create(user=instance)
+        if self.nombre:
+            return f"{self.nombre} - {self.nota}"
+        return f"{self.tipo_evaluacion} - {self.estudiante} - {self.nota}"

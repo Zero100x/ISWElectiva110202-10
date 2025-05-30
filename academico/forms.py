@@ -132,11 +132,14 @@ class AsignaturaForm(forms.ModelForm):
 class CalificacionForm(forms.ModelForm):
     class Meta:
         model = Calificacion
-        fields = ['estudiante', 'asignatura', 'periodo', 'nota']
+        fields = ['nombre', 'estudiante', 'asignatura', 'periodo', 'nota']  # Agregar 'nombre'
         widgets = {
-            'estudiante': forms.Select(attrs={
+            'nombre': forms.TextInput(attrs={
                 'class': 'border-gray-300 rounded p-2 w-full',
-               
+                'placeholder': 'Ej: Examen parcial Unidad 2'
+            }),
+            'estudiante': forms.Select(attrs={
+                'class': 'border-gray-300 rounded p-2 w-full'
             }),
             'asignatura': forms.Select(attrs={
                 'class': 'border-gray-300 rounded p-2 w-full'
@@ -151,6 +154,31 @@ class CalificacionForm(forms.ModelForm):
                 'max': '5'
             }),
         }
+    
+    def __init__(self, *args, **kwargs):
+        profesor = kwargs.pop('profesor', None)
+        super().__init__(*args, **kwargs)
+        
+        # Filtrar asignaturas y estudiantes según el profesor
+        if profesor:
+            self.fields['asignatura'].queryset = profesor.asignaturas.all()
+            self.fields['estudiante'].queryset = Estudiante.objects.filter(
+                asignaturas__profesor=profesor
+            ).distinct()
+        
+        # Opciones para tipo de evaluación
+        self.fields['tipo_evaluacion'].widget.choices = [
+            ('', 'Seleccione un tipo'),
+            ('Parcial', 'Parcial'),
+            ('Final', 'Final'),
+            ('Quiz', 'Quiz'),
+            ('Trabajo', 'Trabajo Práctico'),
+            ('Proyecto', 'Proyecto'),
+            ('Otro', 'Otro'),
+        ]
+        
+        # Hacer que el campo nombre sea requerido
+        self.fields['nombre'].required = True
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

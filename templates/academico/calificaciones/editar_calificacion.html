@@ -55,16 +55,40 @@
             </div>
         </div>
         
-        
         <!-- Botones -->
-        <div class="flex justify-end gap-4 pt-4">
-            <a href="{% url 'lista_calificaciones' %}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition">
-                Cancelar
-            </a>
-            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
-                Guardar Cambios
+        <div class="flex justify-between pt-4">
+            <!-- Botón Eliminar -->
+            <button type="button" 
+                    onclick="confirmarEliminacion()"
+                    class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">
+                Eliminar
             </button>
+            
+            <div class="flex gap-4">
+                <a href="{% url 'lista_calificaciones' %}" 
+                   class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition">
+                    Cancelar
+                </a>
+                <button type="submit" 
+                        class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
+                    Guardar Cambios
+                </button>
+            </div>
         </div>
     </form>
+    
+    <!-- Formulario oculto para eliminación -->
+    <form id="formEliminar" method="post" action="{% url 'eliminar_calificacion' calificacion.id %}" class="hidden">
+        {% csrf_token %}
+    </form>
 </div>
+
+<!-- Script para confirmación -->
+<script>
+function confirmarEliminacion() {
+    if (confirm('¿Estás seguro que deseas eliminar esta calificación? Esta acción no se puede deshacer.')) {
+        document.getElementById('formEliminar').submit();
+    }
+}
+</script>
 {% endblock %}

@@ -233,8 +233,13 @@ class CrearCalificacionView(CreateView):
     template_name = 'academico/calificaciones/crear_calificacion.html'
     success_url = reverse_lazy('lista_calificaciones')
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['profesor'] = self.request.user.profesor
+        return kwargs
+
     def form_valid(self, form):
-        form.instance.profesor = Profesor.objects.get(user=self.request.user)
+        form.instance.profesor = self.request.user.profesor
         return super().form_valid(form)
 
 def es_profesor(user):
@@ -250,7 +255,7 @@ class CrearCalificacionView(CreateView):
     def form_valid(self, form):
         form.instance.profesor = Profesor.objects.get(user=self.request.user)
         return super().form_valid(form)
-
+#editar calificaciones
 @login_required
 @user_passes_test(lambda u: u.rol == 'profesor', login_url='/login/')
 def editar_calificacion(request, pk):
@@ -265,6 +270,27 @@ def editar_calificacion(request, pk):
     else:
         form = CalificacionForm(instance=calificacion)
     return render(request, 'academico/calificaciones/editar_calificacion.html', {'form': form, 'calificacion': calificacion})
+
+#eliminar
+
+@login_required
+@user_passes_test(lambda u: u.rol == 'profesor', login_url='/login/')
+def eliminar_calificacion(request, pk):
+    calificacion = get_object_or_404(Calificacion, pk=pk)
+    
+    # Verificar que el profesor solo puede eliminar sus propias calificaciones
+    if calificacion.profesor.user != request.user:
+        messages.error(request, "No tienes permiso para eliminar esta calificación.")
+        return redirect('lista_calificaciones')
+    
+    if request.method == 'POST':
+        calificacion.delete()
+        messages.success(request, "Calificación eliminada correctamente.")
+    else:
+        messages.error(request, "Método no permitido.")
+    
+    return redirect('lista_calificaciones')
+
 
 @login_required
 def previsualizar_informe_individual(request, estudiante_id, periodo):

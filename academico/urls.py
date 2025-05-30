@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import CrearAsignaturaView, CrearCalificacionView
-from . import views
+from .views import CrearAsignaturaView, CrearCalificacionView, eliminar_calificacion  # Agregar la nueva vista
+from . import views 
 
 
 urlpatterns = [
@@ -23,6 +23,7 @@ urlpatterns = [
     path('calificacion/crear/', CrearCalificacionView.as_view(), name='crear_calificacion'),
     path('informes-rendimiento/', views.informes_rendimiento, name='informes_rendimiento'), 
     path('editar-calificacion/<int:pk>/', views.editar_calificacion, name='editar_calificacion'),
+    # Nueva ruta para eliminar calificaciones
+    path('calificacion/eliminar/<int:pk>/', views.eliminar_calificacion, name='eliminar_calificacion'),
     path('previsualizar-informe-individual/<int:estudiante_id>/<int:periodo>/', views.previsualizar_informe_individual, name='previsualizar_informe_individual'),
 ]
-
