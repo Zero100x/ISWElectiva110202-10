@@ -1,0 +1,16 @@
+.user-info {
+    margin-bottom: 20px;
+}
+
+.role-box {
+    margin-top: 5px;
+    padding: 5px 10px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.user-role {
+    color: #666;
+    font-size: 0.9em;
+}

@@ -1,17 +1,22 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.conf import settings
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, username, password=None, rol='estudiante', **extra_fields):
+    def create_user(self, username, password=None, **extra_fields):
+        """
+        Crea y devuelve un usuario normal con el rol asignado.
+        """
         if not username:
             raise ValueError('El usuario debe tener un nombre de usuario')
+
+        # Aquí obtenemos el valor de 'rol' de `extra_fields` si existe
+        rol = extra_fields.get('rol', 'estudiante')  # Rol predeterminado a 'estudiante'
         if rol not in ['admin', 'profesor', 'estudiante']:
             raise ValueError('Rol debe ser: admin, profesor o estudiante')
-        
-        user = self.model(username=username, rol=rol, **extra_fields)
+
+        # Crear el usuario, asegurándonos de que 'rol' se pase a través de `extra_fields`
+        user = self.model(username=username, **extra_fields)
         user.is_staff = rol in ['admin', 'profesor']
         user.is_superuser = rol == 'admin'
         user.set_password(password)
@@ -19,7 +24,11 @@ class CustomUserManager(BaseUserManager):
         return user
 
     def create_superuser(self, username, password=None, **extra_fields):
-        return self.create_user(username, password, rol='admin', **extra_fields)
+        """
+        Crea y devuelve un superusuario con el rol 'admin'.
+        """
+        extra_fields.setdefault('rol', 'admin')  # Aseguramos que el rol sea 'admin' para el superusuario
+        return self.create_user(username, password, **extra_fields)
 
 class User(AbstractUser):
     ROLES = [('admin', 'Administrador'), ('profesor', 'Profesor'), ('estudiante', 'Estudiante')]
@@ -34,13 +43,15 @@ class User(AbstractUser):
 
     objects = CustomUserManager()
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['rol']
+    REQUIRED_FIELDS = ['rol']  # Aseguramos que 'rol' sea un campo obligatorio
 
     def __str__(self):
         return self.username
 
     def get_pregunta_seguridad(self):
         return self.pregunta_seguridad or "No registrada"
+
+
 
 # Student Model
 class Estudiante(models.Model):
@@ -50,12 +61,14 @@ class Estudiante(models.Model):
     def __str__(self):
         return self.user.get_full_name() or self.user.username
 
+
 # Subject Model
 class Asignatura(models.Model):
     nombre = models.CharField(max_length=100)
 
     def __str__(self):
         return self.nombre
+
 
 # Period Model
 class Periodo(models.Model):
@@ -64,12 +77,14 @@ class Periodo(models.Model):
     def __str__(self):
         return self.nombre
 
+
 # Professor Model
 class Profesor(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.user.get_full_name() or self.user.username
+
 
 # Grade Model
 class Calificacion(models.Model):

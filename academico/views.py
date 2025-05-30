@@ -76,6 +76,9 @@ def configurar_seguridad(request):
         form = SecurityConfigForm()
     return render(request, 'academico/configurar_seguridad.html', {'form': form})
 
+
+
+
 def redirect_to_dashboard(user):
     if user.rol == 'profesor':
         return redirect('lista_calificaciones')
